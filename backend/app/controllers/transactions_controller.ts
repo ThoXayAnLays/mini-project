@@ -32,12 +32,8 @@ export default class TransactionsController {
     protected user: User
   ) {}
 
-  public async sendOtp({ auth, request, response, params }: HttpContext) {
+  public async sendOtp({ auth, response }: HttpContext) {
     const user = await auth.authenticate()
-    const { action } = params.only(['action'])
-    if (!Object.values(actionTypes).includes(action)) {
-      return response.badRequest('Invalid action. Action must be one of 1, 2, 3, 4, 5.')
-    }
 
     const otp = generateOTP()
     OtpService.storeOtp(user.email, otp)
@@ -45,9 +41,10 @@ export default class TransactionsController {
     response.send({ message: 'OTP sent to your email. ' })
   }
 
-  public async verifyOtp({ auth, request, response }: HttpContext) {
+  public async verifyOtp({ auth, request, response, params }: HttpContext) {
     const user = await auth.authenticate()
-    const { otp, action, data } = request.only(['otp', 'action', 'data'])
+    const { action } = params.only(['action'])
+    const { otp, data } = request.only(['otp', 'data'])
 
     if (!OtpService.verifyOtp(user.email, otp)) {
       return response.badRequest('Invalid or expired OTP.')
@@ -85,7 +82,7 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createOffer(userId: string, data: any) {
     const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
-    if(nft.sale_type !== 'offer') {
+    if (nft.sale_type !== 'offer') {
       throw new Error('NFT is for offer only!')
     }
     if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
@@ -101,7 +98,7 @@ export default class TransactionsController {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createBid(userId: string, data: any) {
-    await NFT.query().where('id', data.nft_id).firstOrFail() 
+    await NFT.query().where('id', data.nft_id).firstOrFail()
     if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
       throw new Error('You cannot make an bid on your own item')
     }
@@ -116,7 +113,7 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createAuction(userId: string, data: any) {
     const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
-    if(nft.sale_type !== 'auction') {
+    if (nft.sale_type !== 'auction') {
       throw new Error('NFT is for auction only!')
     }
     if (userId !== (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {

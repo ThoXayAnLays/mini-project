@@ -1,13 +1,17 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import NFT from '#models/nft'
 import Collection from '#models/collection'
-import * as NFTValidator from '#validators/nft'
+import {addNft, updateNft, } from '#validators/nft'
 import Offer from '#models/offer'
 import Bid from '#models/bid'
 
 export default class NftsController {
+  /**
+   * @create
+   * @requestBody <addNft>
+   */
   public async create({ request, response, auth }: HttpContext) {
-    const payload = await NFTValidator.addNft.validate(request.body())
+    const payload = await request.validateUsing(addNft)
     const user = await auth.authenticate()
     const collection = await Collection.findOrFail(payload.collection_id)
     if (collection.creator_id !== user.id) {
@@ -37,7 +41,7 @@ export default class NftsController {
 
   public async update({ params, request, response, auth }: HttpContext) {
     const nft = await NFT.findOrFail(params.id)
-    const payload = await NFTValidator.updateNft.validate(request.body())
+    const payload = await request.validateUsing(updateNft)
     const user = await auth.authenticate()
     const collection = await Collection.findOrFail(payload.collection_id)
     if (collection.creator_id !== user.id) {

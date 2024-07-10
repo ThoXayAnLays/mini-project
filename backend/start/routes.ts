@@ -92,28 +92,24 @@ router
       })
       .prefix('/nft')
 
-    router
-      .group(() => {
-        router.post('/send-otp', [TransactionsController, 'sendOtp'])
-        router.post('/verify-otp', [TransactionsController, 'verifyOtp'])
-      })
-      .prefix('/transaction')
-      .use(middleware.auth({ guards: ['api'] }))
-
     router.group(() => {
-      router.get('/:id', [OffersController, 'index']).use(middleware.pagination()).use(middleware.auth({ guards: ['api'] }))
+      router.get('/:id', [OffersController, 'index']).use(middleware.pagination())
+      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/?action=1', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/?action=4', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/?action=5', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
     }).prefix('/offer')
 
     router.group(() => {
-      router.get('/:id', [BidsController, 'index']).use(middleware.pagination()).use(middleware.auth({ guards: ['api'] }))
+      router.get('/:id', [BidsController, 'index']).use(middleware.pagination())
+      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/?action=2', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
     }).prefix('/bid')
 
-    // router.group(() => {
-
-    // }).prefix('/auction')
-
-    // router.group(() => {
-
-    // }).prefix('/transaction')
+    router.group(() => {
+      router.get('/:id', [AuctionsController, 'index']).use(middleware.pagination())
+      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/?action=3', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
+    }).prefix('/auction')
   })
   .prefix('/api/v1')

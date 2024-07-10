@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary()
-      table.uuid('nft_id').unsigned().references('id').inTable('nfts').onDelete('CASCADE')
+      table.uuid('auction_id').unsigned().references('id').inTable('auctions').onDelete('CASCADE')
       table.uuid('bidder_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
       table.decimal('bid_amount', 12, 2).notNullable()
       table.string('status').defaultTo('pending')

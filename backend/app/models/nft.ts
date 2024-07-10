@@ -62,9 +62,6 @@ export default class Nft extends BaseModel {
   @belongsTo(() => Collection, { foreignKey: 'collection_id' })
   public collection!: BelongsTo<typeof Collection>
 
-  @hasMany(() => Bid, { foreignKey: 'nft_id' })
-  public bids!: HasMany<typeof Bid>
-
   @hasMany(() => Offer, { foreignKey: 'nft_id' })
   public offers!: HasMany<typeof Offer>
 

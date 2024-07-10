@@ -27,6 +27,10 @@ export default class UsersController {
     return response.created({ message: 'Register successfully. Please verify your email.' })
   }
 
+  /**
+   * @login
+   * @requestBody <loginUser>
+   */
   public async login({ request, response }: HttpContext) {
     const validate = await loginUser.validate(request.body())
     const token = request.body().token
@@ -74,26 +78,26 @@ export default class UsersController {
     
     OtpService.storeOtp(email, otp)
 
-    // const mailMessage = {
-    //   to: {email},
-    //   from: 'no-reply@example.com',
-    //   subject: 'OTP Verification',
-    //   htmlView: `emails/otp${otp}`
+    const mailMessage = {
+      to: {email},
+      from: 'no-reply@example.com',
+      subject: 'OTP Verification',
+      htmlView: `emails/otp${otp}`
 
-    // } 
-    // await mailQueue.add('send_email', {
-    //   mailMessage,
-    //   config: {}, // Add any additional mail config if necessary
-    //   mailerName: 'smtp', // or any other mailer you have configured
-    // })
-
-    await mail.use('smtp').sendLater((message) => {
-      message
-        .to(email)
-        .from('no-reply@example.com')
-        .subject('OTP Verification')
-        .htmlView('emails/otp', { otp } )
+    } 
+    await emailQueue.add('send_email', {
+      mailMessage,
+      config: {}, // Add any additional mail config if necessary
+      mailerName: 'smtp', // or any other mailer you have configured
     })
+
+    // await mail.use('smtp').sendLater((message) => {
+    //   message
+    //     .to(email)
+    //     .from('no-reply@example.com')
+    //     .subject('OTP Verification')
+    //     .htmlView('emails/otp', { otp } )
+    // })
     console.log('Send email successfully')
   }
 

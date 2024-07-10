@@ -4,7 +4,7 @@ import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import { v4 as uuidv4 } from 'uuid'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
-import NFT from '#models/nft'
+import Auction from '#models/auction'
 
 export default class Bid extends BaseModel {
   @column({ isPrimary: true })
@@ -22,8 +22,8 @@ export default class Bid extends BaseModel {
   @column()
   declare status: 'pending' | 'accepted' | 'rejected'
 
-  @belongsTo(() => NFT, { foreignKey: 'nft_id' })
-  public nft!: BelongsTo<typeof NFT>
+  @belongsTo(() => Auction, { foreignKey: 'auction_id' })
+  public auction!: BelongsTo<typeof Auction>
 
   @belongsTo(() => User, { foreignKey: 'bidder_id' })
   public bidder!: BelongsTo<typeof User>

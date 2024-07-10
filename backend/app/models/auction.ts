@@ -1,10 +1,11 @@
 // biome-ignore lint/style/useImportType: <explanation>
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import { v4 as uuidv4 } from 'uuid'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import NFT from '#models/nft'
 import User from '#models/user'
+import Bid from './bid.js'
 
 export default class Auction extends BaseModel {
   @column({ isPrimary: true })
@@ -30,6 +31,9 @@ export default class Auction extends BaseModel {
 
   @belongsTo(() => NFT, { foreignKey: 'nft_id' })
   declare nft: BelongsTo<typeof NFT>
+
+  @hasMany(() => Bid, { foreignKey: 'auction_id' })
+  public bids!: HasMany<typeof Bid>
 
   @belongsTo(() => User, { foreignKey: 'highest_bidder_id' })
   declare highest_bidder: BelongsTo<typeof User>
