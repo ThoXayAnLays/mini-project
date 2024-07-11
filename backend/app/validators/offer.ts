@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 
 export const addOffer = vine.compile(
     vine.object({
-        offer_amount: vine.number(),
+        offer_amount: vine.number().min(1),
         nft_id: vine.string(),
     })
 )

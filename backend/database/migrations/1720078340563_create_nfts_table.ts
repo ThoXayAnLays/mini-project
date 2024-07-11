@@ -15,7 +15,7 @@ export default class extends BaseSchema {
       table.uuid('collection_id').unsigned().references('id').inTable('collections').onDelete('SET NULL')
       table.timestamp('created_at', { useTz: true }).defaultTo(this.now())
       table.timestamp('updated_at', { useTz: true }).defaultTo(this.now())
-      table.enu('sale_type', ['buy_now', 'auction', 'offer']).notNullable()
+      table.enum('sale_type', ['buy_now', 'auction', 'offer']).notNullable()
       table.decimal('price', 12, 2)
     })
   }

@@ -42,7 +42,7 @@ export default class CollectionsController {
 
   public async delete({ params, response }: HttpContext) {
     const collection = await Collection.findOrFail(params.id)
-    await NFT.query().where('collection_id', collection.id).update({ collection_id: null });
+    await NFT.query().where('collection_id', collection.id)
     await collection.delete()
     return response.ok({message:"Delete success"})
   }

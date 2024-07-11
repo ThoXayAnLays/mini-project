@@ -18,6 +18,9 @@ export default class Auction extends BaseModel {
   declare start_price: number
 
   @column()
+  declare creator_id: string
+
+  @column()
   declare highest_bid: number
 
   @column()
@@ -31,6 +34,9 @@ export default class Auction extends BaseModel {
 
   @belongsTo(() => NFT, { foreignKey: 'nft_id' })
   declare nft: BelongsTo<typeof NFT>
+
+  @belongsTo(() => User, { foreignKey: 'creator_id' })
+  declare creator: BelongsTo<typeof User>
 
   @hasMany(() => Bid, { foreignKey: 'auction_id' })
   public bids!: HasMany<typeof Bid>

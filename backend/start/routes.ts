@@ -93,23 +93,24 @@ router
       .prefix('/nft')
 
     router.group(() => {
-      router.get('/:id', [OffersController, 'index']).use(middleware.pagination())
+      router.get('/offer-by-nft/:id', [OffersController, 'index']).use(middleware.pagination())
+      router.get('/offer-by-user', [OffersController, 'show']).use(middleware.pagination()).use(middleware.auth({ guards: ['api'] }))
       router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/?action=1', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/?action=4', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/?action=5', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
     }).prefix('/offer')
+
+    router.group(() => {
+      router.get('/all-auction', [AuctionsController, 'index']).use(middleware.pagination())
+      router.get('/auction-by-nft/:id', [AuctionsController, 'show']).use(middleware.pagination())
+      router.get('/auction-by-user', [AuctionsController, 'auctionCreatedByUser']).use(middleware.pagination()).use(middleware.auth({ guards: ['api'] }))
+      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
+    }).prefix('/auction')
 
     router.group(() => {
       router.get('/:id', [BidsController, 'index']).use(middleware.pagination())
       router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/?action=2', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
+      router.post('/', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
     }).prefix('/bid')
-
-    router.group(() => {
-      router.get('/:id', [AuctionsController, 'index']).use(middleware.pagination())
-      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/?action=3', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
-    }).prefix('/auction')
   })
   .prefix('/api/v1')

@@ -37,7 +37,7 @@ export default class Nft extends BaseModel {
   declare collection_id: string
 
   @column()
-  declare sale_type: string
+  declare sale_type: 'offer' | 'auction' | 'buy_now'
 
   @column()
   declare price: number

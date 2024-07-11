@@ -63,6 +63,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @hasMany(() => NFT, { foreignKey: 'creator_id' })
   declare createdNFTs: HasMany<typeof NFT>
 
+  @hasMany(() => Auction, { foreignKey: 'creator_id' })
+  declare createdAuction: HasMany<typeof Auction>
+
   @hasMany(() => NFT, { foreignKey: 'owner_id' })
   declare ownedNFTs: HasMany<typeof NFT>
 

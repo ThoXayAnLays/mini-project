@@ -43,14 +43,13 @@ export default class TransactionsController {
 
   public async verifyOtp({ auth, request, response, params }: HttpContext) {
     const user = await auth.authenticate()
-    const { action } = params.only(['action'])
     const { otp, data } = request.only(['otp', 'data'])
 
     if (!OtpService.verifyOtp(user.email, otp)) {
       return response.badRequest('Invalid or expired OTP.')
     }
 
-    switch (action) {
+    switch (params.action) {
       case 1: {
         const createOffer = await addOffer.validate(data)
         await this.createOffer(user.id, createOffer)
@@ -98,8 +97,8 @@ export default class TransactionsController {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createBid(userId: string, data: any) {
-    await NFT.query().where('id', data.nft_id).firstOrFail()
-    if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
+    const auction = await Auction.query().where('id', data.auction_id).firstOrFail()
+    if (userId === auction.nft.owner_id) {
       throw new Error('You cannot make an bid on your own item')
     }
     const bid = await this.user.related('bids').create({
@@ -131,6 +130,9 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async acceptOffer(userId: string, data: any) {
     const offer = await Offer.findOrFail(data.offer_id)
+    if (offer.nft.owner_id !== userId) {
+      throw new Error('You are not the owner of this NFT.')
+    }
     offer.status = 'accepted'
     await offer.save()
 
@@ -145,6 +147,9 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async rejectOffer(userId: string, data: any) {
     const offer = await Offer.findOrFail(data.offer_id)
+    if (offer.nft.owner_id !== userId) {
+      throw new Error('You are not the owner of this NFT.')
+    }
     offer.status = 'rejected'
     await offer.save()
   }
@@ -160,6 +165,14 @@ export default class TransactionsController {
       const nft = await NFT.findOrFail(auction.nft_id)
       nft.owner_id = highestBid.bidder_id
       await nft.save()
+
+      await Bid.query()
+        .where('auction_id', auctionId)
+        .whereNot('id', highestBid.id) 
+        .update({ status: 'rejected' })
+
+      highestBid.status = 'accepted'
+      await highestBid.save()
 
       await TransactionsController.createTransaction({
         nft_id: auction.nft_id,
