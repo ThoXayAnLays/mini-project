@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import axiosInstance from "../libs/axiosInstance";
 
 interface AuthContextValue {
@@ -9,14 +9,18 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue>({ token: null, setToken: () => {} });
 
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const AuthProvider = ( children: any ) => {
+const AuthProvider = ({ children }: AuthProviderProps) => {
   // State to hold the authentication token
   const [token, setToken_] = useState(localStorage.getItem("token"));
 
   // Function to set the authentication token
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const setToken = (newToken: any) => {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const setToken = (newToken: any) => {
     setToken_(newToken);
   };
 
@@ -24,19 +28,19 @@ const AuthProvider = ( children: any ) => {
     if (token) {
       // biome-ignore lint/complexity/useLiteralKeys: <explanation>
       // biome-ignore lint/style/useTemplate: <explanation>
-            axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + token;
-      localStorage.setItem('token',token);
+      axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + token;
+      localStorage.setItem("token", token);
     } else {
       // biome-ignore lint/complexity/useLiteralKeys: <explanation>
       // biome-ignore lint/performance/noDelete: <explanation>
-            delete axiosInstance.defaults.headers.common["Authorization"];
-      localStorage.removeItem('token')
+      delete axiosInstance.defaults.headers.common["Authorization"];
+      localStorage.removeItem("token");
     }
   }, [token]);
 
   // Memoized value of the authentication context
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    const contextValue = useMemo(
+  const contextValue = useMemo(
     () => ({
       token,
       setToken,

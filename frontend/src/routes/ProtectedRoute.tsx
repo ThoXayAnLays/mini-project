@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 
 const ProtectedRoute = () => {
-  const token = useAuth();
+  const { token } = useAuth();
 
   // Check if the user is authenticated
   if (!token) {
