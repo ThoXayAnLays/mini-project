@@ -23,12 +23,15 @@ const Register: React.FC = () => {
       });
       if (respone.message !== 'Register successfully. Please verify your email.') {
         return toast.error("Something went wrong");
+      // biome-ignore lint/style/noUselessElse: <explanation>
       } else {
         toast.success("Please verify email first");
         navigate("/verify-otp", { state: { email } });
 
         setUsername("");
         setPassword("");
+        setEmail("");
+        setWalletAddress("");
         setError("");
       }
     } catch (error) {

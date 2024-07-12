@@ -36,7 +36,7 @@ export default class UsersController {
     const token = request.body().token
     const user = await User.verifyCredentials(validate.email, validate.password)
     if(user.is_verified === false){
-      return response.abort({ message: 'Email is not verified'})
+      return response.badGateway({ message: 'Email is not verified'})
     }
 
     const tokenAuth = await User.accessTokens.create(user)
@@ -49,7 +49,7 @@ export default class UsersController {
       });
 
       if (!isValid) {
-        return response.unauthorized('Invalid 2FA token');
+        return response.abort({message:'Invalid 2FA token'});
       }
     }
 

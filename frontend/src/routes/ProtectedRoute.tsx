@@ -1,5 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const ProtectedRoute = () => {
   const { token } = useAuth();
@@ -11,7 +13,7 @@ const ProtectedRoute = () => {
   }
 
   // If authenticated, render the child routes
-  return <Outlet />;
+  return ( <Outlet /> );
 };
 
 export default ProtectedRoute;

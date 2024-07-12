@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Input from '../../components/Form/Input';
+import { verifyOtp } from '../../services/auth';
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState('');
@@ -24,7 +25,7 @@ const VerifyOtp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if(await axios.post('http://localhost:3333/api/v1/auth/verify-otp', { email, otp })){
+      if(await verifyOtp( email, otp )){
         navigate('/login');
       }else{
         console.error('OTP verification failed');

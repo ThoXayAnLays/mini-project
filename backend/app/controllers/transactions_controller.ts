@@ -37,57 +37,75 @@ export default class TransactionsController {
 
     const otp = generateOTP()
     OtpService.storeOtp(user.email, otp)
+    console.log('OTP:', otp)
+
     await emailQueue.add('send_otp', { email: user.email, otp })
     response.send({ message: 'OTP sent to your email. ' })
   }
 
-  public async verifyOtp({ auth, request, response, params }: HttpContext) {
+  public async verifyOtp({ auth, request, response }: HttpContext) {
+    const action = Number.parseInt(request.input('action'))
     const user = await auth.authenticate()
     const { otp, data } = request.only(['otp', 'data'])
 
-    if (!OtpService.verifyOtp(user.email, otp)) {
+    if (!user || !user.email || !OtpService.verifyOtp(user.email, otp)) {
       return response.badRequest('Invalid or expired OTP.')
     }
 
-    switch (params.action) {
-      case 1: {
+    switch (action) {
+      case actionTypes.OFFER: {
         const createOffer = await addOffer.validate(data)
-        await this.createOffer(user.id, createOffer)
+        const response = await this.createOffer(user.id, createOffer)
+        if (response?.message) {
+          return response?.message
+        }
         break
       }
-      case 2: {
+      case actionTypes.BID: {
         const createBid = await addBid.validate(data)
-        await this.createBid(user.id, createBid)
+        const response = await this.createBid(user.id, createBid)
+        if (response?.message) {
+          return response?.message
+        }
         break
       }
-      case 3: {
+      case actionTypes.AUCTION: {
         const createAuction = await addAuction.validate(data)
-        await this.createAuction(user.id, createAuction)
+        const response = await this.createAuction(user.id, createAuction)
+        if (response?.message) {
+          return response?.message
+        }
         break
       }
-      case 4:
-        await this.acceptOffer(user.id, data)
+      case actionTypes.ACCEPT: {
+        const response = await this.acceptOffer(user.id, data)
+        if (response?.message) {
+          return response?.message
+        }
         break
-      case 5:
-        await this.rejectOffer(user.id, data)
+      }
+      case actionTypes.REJECT: {
+        const response = await this.rejectOffer(user.id, data)
+        if (response?.message) {
+          return response?.message
+        }
         break
+      }
       default:
         return response.badRequest('Invalid action.')
     }
-
-    response.send({ message: 'Action completed successfully.' })
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createOffer(userId: string, data: any) {
     const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
     if (nft.sale_type !== 'offer') {
-      throw new Error('NFT is for offer only!')
+      return { message: 'NFT is for auction only!' }
     }
     if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
-      throw new Error('You cannot make an offer on your own item')
+      return { message: 'You cannot make an offer on your own item' }
     }
-    const offer = await this.user.related('offers').create({
+    const offer = await Offer.create({
       ...data,
       status: 'pending',
       offeror_id: userId,
@@ -99,9 +117,9 @@ export default class TransactionsController {
   private async createBid(userId: string, data: any) {
     const auction = await Auction.query().where('id', data.auction_id).firstOrFail()
     if (userId === auction.nft.owner_id) {
-      throw new Error('You cannot make an bid on your own item')
+      return { message: 'You cannot bid on your own auction' }
     }
-    const bid = await this.user.related('bids').create({
+    const bid = await Bid.create({
       ...data,
       status: 'pending',
       bidder_id: userId,
@@ -113,13 +131,13 @@ export default class TransactionsController {
   private async createAuction(userId: string, data: any) {
     const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
     if (nft.sale_type !== 'auction') {
-      throw new Error('NFT is for auction only!')
+      return { message: 'NFT is for offer only!' }
     }
     if (userId !== (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
-      throw new Error('You cannot make an auction on others item')
+      return { message: 'You cannot create an auction for an item you do not own' }
     }
 
-    const auction = await this.user.related('auctions').create({
+    const auction = await Auction.create({
       nft_id: data.nft_id,
       start_price: data.start_price,
       auction_end: DateTime.fromJSDate(data.auction_end),
@@ -131,7 +149,7 @@ export default class TransactionsController {
   private async acceptOffer(userId: string, data: any) {
     const offer = await Offer.findOrFail(data.offer_id)
     if (offer.nft.owner_id !== userId) {
-      throw new Error('You are not the owner of this NFT.')
+      return { message: 'You are not the owner of this NFT.' }
     }
     offer.status = 'accepted'
     await offer.save()
@@ -148,7 +166,7 @@ export default class TransactionsController {
   private async rejectOffer(userId: string, data: any) {
     const offer = await Offer.findOrFail(data.offer_id)
     if (offer.nft.owner_id !== userId) {
-      throw new Error('You are not the owner of this NFT.')
+      return { message: 'You are not the owner of this NFT.' }
     }
     offer.status = 'rejected'
     await offer.save()
@@ -168,7 +186,7 @@ export default class TransactionsController {
 
       await Bid.query()
         .where('auction_id', auctionId)
-        .whereNot('id', highestBid.id) 
+        .whereNot('id', highestBid.id)
         .update({ status: 'rejected' })
 
       highestBid.status = 'accepted'
