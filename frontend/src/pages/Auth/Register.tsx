@@ -14,29 +14,34 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const respone = await AuthService.register({
-        username,
-        email,
-        password,
-        wallet_address,
-      });
-      if (respone.message !== 'Register successfully. Please verify your email.') {
-        return toast.error("Something went wrong");
-      // biome-ignore lint/style/noUselessElse: <explanation>
-      } else {
-        toast.success("Please verify email first");
-        navigate("/verify-otp", { state: { email } });
-
-        setUsername("");
-        setPassword("");
-        setEmail("");
-        setWalletAddress("");
-        setError("");
+    if (!username || !email || !password || !wallet_address) {
+      toast.error('Please fill all fields!');
+      e.preventDefault();
+    } else {
+      try {
+        const respone = await AuthService.register({
+          username,
+          email,
+          password,
+          wallet_address,
+        });
+        if (respone.message !== 'Register successfully. Please verify your email.') {
+          return toast.error("Something went wrong");
+        // biome-ignore lint/style/noUselessElse: <explanation>
+        } else {
+          toast.success("Please verify email first");
+          navigate("/verify-otp", { state: { email } });
+  
+          setUsername("");
+          setPassword("");
+          setEmail("");
+          setWalletAddress("");
+          setError("");
+        }
+      } catch (error) {
+        toast.error("Something went wrong");
+        console.log("error :>> ", error);
       }
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log("error :>> ", error);
     }
   };
 
@@ -63,7 +68,6 @@ const Register: React.FC = () => {
                   id="username"
                   name="username"
                   type="text"
-                  required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -83,7 +87,6 @@ const Register: React.FC = () => {
                   id="email"
                   name="email"
                   type="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -103,7 +106,6 @@ const Register: React.FC = () => {
                   id="password"
                   name="password"
                   type="password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -123,7 +125,6 @@ const Register: React.FC = () => {
                   id="wallet_address"
                   name="wallet_address"
                   type="text"
-                  required
                   value={wallet_address}
                   onChange={(e) => setWalletAddress(e.target.value)}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
