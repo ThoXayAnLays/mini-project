@@ -71,3 +71,18 @@ export const showCollection = async (id: string) => {
         return { status: 'ERROR', message: 'Failed to fetch collection.' };
     }
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export const getCollectionByUser = async (token: any) => {
+    try {
+        // biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+        const response = await axiosInstance.get(`/collection/getByOwner`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        return { status: 'SUCCESS', message: 'Get collection by owner successfullt.', data: response.data}
+    } catch (error) {
+        return { status: 'ERROR', message: 'Failed to fetch collection.' };
+    }
+}

@@ -17,7 +17,7 @@ import { middleware } from './kernel.js'
 // import AuctionsController from '#controllers/auctions_controller'
 // import TransactionsController from '#controllers/transactions_controller'
 // import TwoFactorAuthsController from '#controllers/two_factor_auths_controller'
- 
+
 const UsersController = () => import('#controllers/users_controller')
 const CollectionsController = () => import('#controllers/collections_controller')
 const NftsController = () => import('#controllers/nfts_controller')
@@ -27,19 +27,19 @@ const AuctionsController = () => import('#controllers/auctions_controller')
 const TransactionsController = () => import('#controllers/transactions_controller')
 const TwoFactorAuthsController = () => import('#controllers/two_factor_auths_controller')
 
-import AutoSwagger from "adonis-autoswagger";
-import swagger from "#config/swagger";
+import AutoSwagger from 'adonis-autoswagger'
+import swagger from '#config/swagger'
 // returns swagger in YAML
-router.get("/swagger", async () => {
-  return AutoSwagger.default.docs(router.toJSON(), swagger);
-});
+router.get('/swagger', async () => {
+  return AutoSwagger.default.docs(router.toJSON(), swagger)
+})
 
 // Renders Swagger-UI and passes YAML-output of /swagger
-router.get("/docs", async () => {
-  return AutoSwagger.default.ui("/swagger", swagger);
+router.get('/docs', async () => {
+  return AutoSwagger.default.ui('/swagger', swagger)
   // return AutoSwagger.default.scalar("/swagger", swagger); to use Scalar instead
   // return AutoSwagger.default.rapidoc("/swagger", swagger); to use RapiDoc instead
-});
+})
 
 router
   .group(() => {
@@ -51,6 +51,9 @@ router
           .post('/logout', [UsersController, 'logout'])
           .use(middleware.auth({ guards: ['api'] }))
         router.get('/me', [UsersController, 'me']).use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/update-profile', [UsersController, 'updateProfile'])
+          .use(middleware.auth({ guards: ['api'] }))
         router.post('/send-otp', [UsersController, 'sendOtp'])
         router.post('/verify-otp', [UsersController, 'verifyOtp'])
         router.post('/forgot-password', [UsersController, 'forgotPassword'])
@@ -63,13 +66,17 @@ router
         router.post('/generate', [TwoFactorAuthsController, 'generateSecret'])
         router.post('/validate', [TwoFactorAuthsController, 'validateToken'])
       })
-      .prefix('/twofa').use(middleware.auth({ guards: ['api'] }))
-      
+      .prefix('/twofa')
+      .use(middleware.auth({ guards: ['api'] }))
 
     router
       .group(() => {
         router.get('/', [CollectionsController, 'index']).use(middleware.pagination())
         router.get('/:id', [CollectionsController, 'show'])
+        router
+          .get('/getByOwner', [CollectionsController, 'getByOwner'])
+          .use(middleware.pagination())
+          .use(middleware.auth({ guards: ['api'] }))
         router
           .post('/', [CollectionsController, 'create'])
           .use(middleware.auth({ guards: ['api'] }))
@@ -92,25 +99,53 @@ router
       })
       .prefix('/nft')
 
-    router.group(() => {
-      router.get('/offer-by-nft/:id', [OffersController, 'index']).use(middleware.pagination())
-      router.get('/offer-by-user', [OffersController, 'show']).use(middleware.pagination()).use(middleware.auth({ guards: ['api'] }))
-      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
-    }).prefix('/offer')
+    router
+      .group(() => {
+        router.get('/offer-by-nft/:id', [OffersController, 'index']).use(middleware.pagination())
+        router
+          .get('/offer-by-user', [OffersController, 'show'])
+          .use(middleware.pagination())
+          .use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/send-otp', [TransactionsController, 'sendOtp'])
+          .use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/', [TransactionsController, 'verifyOtp'])
+          .use(middleware.auth({ guards: ['api'] }))
+      })
+      .prefix('/offer')
 
-    router.group(() => {
-      router.get('/all-auction', [AuctionsController, 'index']).use(middleware.pagination())
-      router.get('/auction-by-nft/:id', [AuctionsController, 'show']).use(middleware.pagination())
-      router.get('/auction-by-user', [AuctionsController, 'auctionCreatedByUser']).use(middleware.pagination()).use(middleware.auth({ guards: ['api'] }))
-      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
-    }).prefix('/auction')
+    router
+      .group(() => {
+        router.get('/all-auction', [AuctionsController, 'index']).use(middleware.pagination())
+        router.get('/auction-by-nft/:id', [AuctionsController, 'show']).use(middleware.pagination())
+        router
+          .get('/auction-by-user', [AuctionsController, 'auctionCreatedByUser'])
+          .use(middleware.pagination())
+          .use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/send-otp', [TransactionsController, 'sendOtp'])
+          .use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/', [TransactionsController, 'verifyOtp'])
+          .use(middleware.auth({ guards: ['api'] }))
+      })
+      .prefix('/auction')
 
-    router.group(() => {
-      router.get('/:id', [BidsController, 'index']).use(middleware.pagination())
-      router.post('/send-otp', [TransactionsController, 'sendOtp']).use(middleware.auth({ guards: ['api'] }))
-      router.post('/', [TransactionsController, 'verifyOtp']).use(middleware.auth({ guards: ['api'] }))
-    }).prefix('/bid')
+    router
+      .group(() => {
+        router.get('/:id', [BidsController, 'bidByAuction']).use(middleware.pagination())
+        router
+          .get('/', [BidsController, 'bidByUser'])
+          .use(middleware.pagination())
+          .use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/send-otp', [TransactionsController, 'sendOtp'])
+          .use(middleware.auth({ guards: ['api'] }))
+        router
+          .post('/', [TransactionsController, 'verifyOtp'])
+          .use(middleware.auth({ guards: ['api'] }))
+      })
+      .prefix('/bid')
   })
   .prefix('/api/v1')

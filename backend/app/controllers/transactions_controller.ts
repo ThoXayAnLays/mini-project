@@ -71,6 +71,8 @@ export default class TransactionsController {
       }
       case actionTypes.AUCTION: {
         const createAuction = await addAuction.validate(data)
+        console.log('createAuction: ', createAuction);
+        
         const response = await this.createAuction(user.id, createAuction)
         if (response?.message) {
           return response?.message
@@ -79,10 +81,7 @@ export default class TransactionsController {
       }
       case actionTypes.ACCEPT: {
         const response = await this.acceptOffer(user.id, data)
-        if (response?.message) {
-          return response?.message
-        }
-        break
+        return response
       }
       case actionTypes.REJECT: {
         const response = await this.rejectOffer(user.id, data)
@@ -98,61 +97,109 @@ export default class TransactionsController {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createOffer(userId: string, data: any) {
-    const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
-    if (nft.sale_type !== 'offer') {
-      return { message: 'NFT is for auction only!' }
+    const offer = await Offer.query()
+      .where('offeror_id', userId)
+      .where('nft_id', data.nft_id)
+      .first()
+    if (!offer) {
+      const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
+      if (nft.sale_type !== 'offer') {
+        return { code: 400, message: 'NFT is for auction only!' }
+      }
+      if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
+        return { code: 401, message: 'You cannot offer on your own NFT' }
+      }
+      const newOffer = await Offer.create({
+        ...data,
+        status: 'pending',
+        offeror_id: userId,
+      })
+      await newOffer.save()
+      return { code: 200, message: 'Offer created successfully' }
+      // biome-ignore lint/style/noUselessElse: <explanation>
+    } else {
+      offer.offer_amount = data.offer_amount
+      await offer.save()
+      return { code: 200, message: 'Offer updated successfully' }
     }
-    if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
-      return { message: 'You cannot make an offer on your own item' }
-    }
-    const offer = await Offer.create({
-      ...data,
-      status: 'pending',
-      offeror_id: userId,
-    })
-    await offer.save()
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createBid(userId: string, data: any) {
     const auction = await Auction.query().where('id', data.auction_id).firstOrFail()
-    if (userId === auction.nft.owner_id) {
-      return { message: 'You cannot bid on your own auction' }
+    if (auction.is_ended || auction.auction_end < DateTime.now()) {
+      return { message: 'Auction has ended' }
     }
-    const bid = await Bid.create({
-      ...data,
-      status: 'pending',
-      bidder_id: userId,
-    })
-    await bid.save()
+    if(data.bid_amount < auction.start_price) {
+      return { message: 'Bid amount must be greater than the start price' }
+    }
+    const bid = await Bid.query()
+      .where('bidder_id', userId)
+      .where('auction_id', data.auction_id)
+      .first()
+    if (!bid) {
+      if (userId === auction.nft.owner_id) {
+        return { message: 'You cannot bid on your own auction' }
+      }
+      const newBid = await Bid.create({
+        ...data,
+        status: 'pending',
+        bidder_id: userId,
+      })
+      await newBid.save()
+    } else {
+      bid.bid_amount = data.bid_amount
+      await bid.save()
+    }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createAuction(userId: string, data: any) {
-    const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
-    if (nft.sale_type !== 'auction') {
-      return { message: 'NFT is for offer only!' }
+    if(DateTime.fromISO(data.auction_end) < DateTime.now()) {
+      return { code: 401, message: 'Auction end date must be in the future' }
     }
-    if (userId !== (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
-      return { message: 'You cannot create an auction for an item you do not own' }
-    }
+    const auction = await Auction.query().where('nft_id', data.nft_id).first()
+    if (!auction) {
+      const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
+      if (nft.sale_type !== 'auction') {
+        return { code: 401, message: 'NFT is for offer only!' }
+      }
+      if (userId !== (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
+        return { code: 401, message: 'You cannot create an auction for an item you do not own' }
+      }
 
-    const auction = await Auction.create({
-      nft_id: data.nft_id,
-      start_price: data.start_price,
-      auction_end: DateTime.fromJSDate(data.auction_end),
-    })
-    await auction.save()
+      const newAuction = await Auction.create({
+        creator_id: userId,
+        nft_id: data.nft_id,
+        start_price: data.start_price,
+        auction_end: DateTime.fromISO(data.auction_end),
+      })
+      await newAuction.save()
+      return { code: 200, message: 'Create new auction success' }
+    // biome-ignore lint/style/noUselessElse: <explanation>
+    } else {
+      auction.creator_id = userId
+      auction.start_price = data.start_price
+      auction.auction_end = DateTime.fromISO(data.auction_end)
+      await auction.save()
+      return { code: 201, message: 'Update auction success' }
+    }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async acceptOffer(userId: string, data: any) {
-    const offer = await Offer.findOrFail(data.offer_id)
+    const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
     if (offer.nft.owner_id !== userId) {
       return { message: 'You are not the owner of this NFT.' }
     }
     offer.status = 'accepted'
     await offer.save()
+
+    await NFT.query().where('id', offer.nft_id).update({ owner_id: offer.offeror_id })
+    await Offer.query()
+      .where('nft_id', offer.nft_id)
+      .whereNot('id', offer.id)
+      .update({ status: 'rejected' })
 
     await TransactionsController.createTransaction({
       nft_id: offer.nft_id,
@@ -164,10 +211,11 @@ export default class TransactionsController {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async rejectOffer(userId: string, data: any) {
-    const offer = await Offer.findOrFail(data.offer_id)
+    const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
     if (offer.nft.owner_id !== userId) {
       return { message: 'You are not the owner of this NFT.' }
     }
+
     offer.status = 'rejected'
     await offer.save()
   }

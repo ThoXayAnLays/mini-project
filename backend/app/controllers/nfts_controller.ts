@@ -4,20 +4,45 @@ import Collection from '#models/collection'
 import {addNft, updateNft, } from '#validators/nft'
 import Offer from '#models/offer'
 import Bid from '#models/bid'
+import cloudinary from '../../cloudinaryConfig.js'
+
+interface INft {
+  title: string;
+  description: string;
+  image_url: string;
+  collection_id: string;
+  metadata: string;
+  sale_type: string;
+  price: string;
+}
 
 export default class NftsController {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  async uploadNftImage(file: any) {
+    const result = await cloudinary.uploader.upload(file.tmpPath, {
+      folder: "nfts",
+    });
+    return result.secure_url;
+  }
+
   /**
    * @create
    * @requestBody <addNft>
    */
   public async create({ request, response, auth }: HttpContext) {
+    const file = request.file('image_url')
+    // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+    let image_url;
+    if (file) {
+      image_url = await this.uploadNftImage(file);
+    }
     const payload = await request.validateUsing(addNft)
     const user = await auth.authenticate()
     const collection = await Collection.findOrFail(payload.collection_id)
     if (collection.creator_id !== user.id) {
       return response.forbidden({ message: 'You are not authorized to create an NFT in this collection' })
     }
-    const nft = await NFT.create({ ...payload, creator_id: user.id, owner_id: user.id })
+    const nft = await NFT.create({ ...payload, creator_id: user.id, owner_id: user.id, image_url: image_url })
     
     return response.created(nft)
   }

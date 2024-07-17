@@ -8,9 +8,10 @@ export default class extends BaseSchema {
       table.uuid('id').primary()
       table.string('name').notNullable().unique()
       table.string('description').notNullable()
-      table.uuid('creator_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.uuid('creator_id').unsigned().references('id').inTable('users')
       table.timestamp('created_at')
       table.timestamp('updated_at')
+      table.timestamp('deleted_at').nullable()
     })
   }
 

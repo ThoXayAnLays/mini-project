@@ -6,7 +6,7 @@ cron.schedule('*/10 * * * * *', async () => {
     console.log('Running cron job');
     
     const auctions = await Auction.query()
-      .where('auction_end', '>=', new Date())
+      .where('auction_end', '<=', new Date())
       .andWhere('is_ended', false)
     // biome-ignore lint/complexity/noForEach: <explanation>
     auctions.forEach(async (auction) => {

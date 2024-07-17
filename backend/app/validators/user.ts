@@ -27,3 +27,16 @@ export const loginUser = vine.compile(
     password: vine.string().minLength(8),
   })
 )
+
+export const updateInfo = vine.compile(
+  vine.object({
+    username: vine.string().optional(),
+    bio: vine.string().optional(),
+    wallet_address: vine
+      .string()
+      .unique(async (db, value) => {
+        const match = await db.from('users').select('id').where('wallet_address', value).first()
+        return !match
+      }).optional()
+  })
+)

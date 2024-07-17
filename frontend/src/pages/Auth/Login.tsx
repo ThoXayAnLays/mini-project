@@ -45,7 +45,7 @@ const Login: React.FC = () => {
   
         if(data.token.token){
           setToken(data.token.token);
-          navigate("/profile");
+          navigate("/");
         }
       } catch (error) {
         setError("An error occurred. Please try again.");

@@ -6,15 +6,16 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary()
-      table.uuid('nft_id').unsigned().references('id').inTable('nfts').onDelete('CASCADE')
-      table.uuid('creator_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.uuid('nft_id').unsigned().references('id').inTable('nfts')
+      table.uuid('creator_id').unsigned().references('id').inTable('users')
       table.decimal('start_price', 12, 2).notNullable()
       table.decimal('highest_bid', 12, 2).defaultTo(0)
       table.boolean('is_ended').defaultTo(false)
-      table.uuid('highest_bidder_id').unsigned().references('id').inTable('users').onDelete('SET NULL')
+      table.uuid('highest_bidder_id').unsigned().references('id').inTable('users')
       table.timestamp('auction_end').notNullable()
       table.timestamp('created_at')
       table.timestamp('updated_at')
+      table.timestamp('deleted_at').nullable()
     })
   }
 
