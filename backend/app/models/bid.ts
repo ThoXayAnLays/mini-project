@@ -11,7 +11,7 @@ export default class Bid extends BaseModel {
   declare id: string
 
   @column()
-  declare nft_id: string
+  declare auction_id: string
 
   @column()
   declare bidder_id: string

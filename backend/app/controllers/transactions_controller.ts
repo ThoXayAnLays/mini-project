@@ -106,7 +106,7 @@ export default class TransactionsController {
       if (nft.sale_type !== 'offer') {
         return { code: 400, message: 'NFT is for auction only!' }
       }
-      if (userId === (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
+      if (userId === nft.owner_id) {
         return { code: 401, message: 'You cannot offer on your own NFT' }
       }
       const newOffer = await Offer.create({
@@ -115,7 +115,7 @@ export default class TransactionsController {
         offeror_id: userId,
       })
       await newOffer.save()
-      return { code: 200, message: 'Offer created successfully' }
+      return { code: 201, message: 'Offer created successfully' }
       // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       offer.offer_amount = data.offer_amount
@@ -138,7 +138,7 @@ export default class TransactionsController {
       .where('auction_id', data.auction_id)
       .first()
     if (!bid) {
-      if (userId === auction.nft.owner_id) {
+      if (userId === auction.creator_id) {
         return { message: 'You cannot bid on your own auction' }
       }
       const newBid = await Bid.create({
@@ -147,9 +147,12 @@ export default class TransactionsController {
         bidder_id: userId,
       })
       await newBid.save()
+      return { code: 201, message: 'Bid created successfully' }
+    // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       bid.bid_amount = data.bid_amount
       await bid.save()
+      return { code: 200, message: 'Bid updated successfully' }
     }
   }
 
@@ -164,7 +167,7 @@ export default class TransactionsController {
       if (nft.sale_type !== 'auction') {
         return { code: 401, message: 'NFT is for offer only!' }
       }
-      if (userId !== (await NFT.query().where('id', data.nft_id).firstOrFail()).owner_id) {
+      if (userId !== nft.owner_id) {
         return { code: 401, message: 'You cannot create an auction for an item you do not own' }
       }
 
@@ -175,20 +178,23 @@ export default class TransactionsController {
         auction_end: DateTime.fromISO(data.auction_end),
       })
       await newAuction.save()
-      return { code: 200, message: 'Create new auction success' }
+      return { code: 201, message: 'Create new auction success' }
     // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       auction.creator_id = userId
       auction.start_price = data.start_price
       auction.auction_end = DateTime.fromISO(data.auction_end)
       await auction.save()
-      return { code: 201, message: 'Update auction success' }
+      return { code: 200, message: 'Update auction success' }
     }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async acceptOffer(userId: string, data: any) {
     const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
+    if(offer.status !== 'pending') {
+      return { message: 'Offer has already been accepted or rejected by the owner' }
+    }
     if (offer.nft.owner_id !== userId) {
       return { message: 'You are not the owner of this NFT.' }
     }
@@ -207,17 +213,22 @@ export default class TransactionsController {
       seller_id: userId,
       sale_price: offer.offer_amount,
     })
+    return { code: 200, message: 'Offer accepted successfully' }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async rejectOffer(userId: string, data: any) {
     const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
+    if(offer.status !== 'pending') {
+      return { message: 'Offer has already been accepted or rejected by the owner' }
+    }
     if (offer.nft.owner_id !== userId) {
       return { message: 'You are not the owner of this NFT.' }
     }
 
     offer.status = 'rejected'
     await offer.save()
+    return { code: 200, message: 'Offer rejected successfully' }
   }
 
   static async endAuction(auctionId: string) {
@@ -250,6 +261,7 @@ export default class TransactionsController {
 
     auction.is_ended = true
     await auction.save()
+    return { code: 200, message: 'Auction ended successfully' }
   }
 
   static async createTransaction(data: {
@@ -264,5 +276,6 @@ export default class TransactionsController {
     transaction.seller_id = data.seller_id
     transaction.sale_price = data.sale_price
     await transaction.save()
+    return { code: 201, message: 'Transaction created successfully' }
   }
 }

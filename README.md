@@ -1,6 +1,6 @@
 ###
 
-login/register.
+login/register/forgot password.
 jwt token.
 otp to verify email when register new account.
 2fa login using Authenticator app on CH Play (optional).

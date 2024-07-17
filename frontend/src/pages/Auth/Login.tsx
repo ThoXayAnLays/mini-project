@@ -21,19 +21,18 @@ const Login: React.FC = () => {
     } else {
       try {
         const data = await login({ email, password, token: otp});
-  
-        const resCode = data?.error?.message;
+        const resCode = data?.error?.response?.status;
         console.log("resCode :>> ", resCode);
         
-        if (resCode === 'Request failed with status code 400') {
+        if (resCode === 400) {
           toast.error("Wrong username or password");
           return;
         }
-        if (resCode === 'Request failed with status code 401') {
+        if (resCode ===  401) {
           toast.error("Invalid 2FA token");
           return;
         }
-        if (resCode === 'Request failed with status code 502') {
+        if (resCode === 502) {
           await sendOtp(email);
           navigate("/verify-otp", { state: { email } });
           return;

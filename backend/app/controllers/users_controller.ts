@@ -150,6 +150,9 @@ export default class UsersController {
 
   public async forgotPassword({ request, response }: HttpContext) {
     const payload = await SendOtpValidator.validate(request.body())
+    if(!await User.findBy('email', payload.email)){
+      return response.badRequest({ message: 'Email not found' })
+    }
     await this.sendOtpToEmail(payload.email)
     return response.ok({ message: 'OTP sent successfully' })
   }
