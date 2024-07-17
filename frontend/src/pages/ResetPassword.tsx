@@ -1,15 +1,15 @@
-import type React from 'react';
+import type React from "react";
 import { useState, useEffect } from "react";
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import { resetPassword } from '../services/auth';
-import { sendOtp } from '../services/auth';
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { resetPassword } from "../services/auth";
+import { sendOtp } from "../services/auth";
 
 const ResetPassword: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [timer, setTimer] = useState(60);
 
@@ -25,14 +25,9 @@ const ResetPassword: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await resetPassword(email, otp, password);
-      if(response.status === 200){
-        toast.success("Password reset successful");
-        navigate("/login");
-      }else{
-        toast.error("Failed to reset password");
-        setMessage(response.message);
-      }
+      const response = await resetPassword(email, password, otp);
+      toast.success("Password reset successful");
+      navigate("/login");
     } catch (error) {
       toast.error("Failed to reset password");
       console.log("error :>> ", error);
@@ -130,17 +125,17 @@ const ResetPassword: React.FC = () => {
             </button>
           </div>
           <div className="mt-6 flex justify-center">
-          <button
-            type="button"
-            onClick={handleResendOtp}
-            disabled={timer > 0}
-            className={`flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
-              timer > 0 ? "cursor-not-allowed" : ""
-            }`}
-          >
-            {timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP"}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={timer > 0}
+              className={`flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+                timer > 0 ? "cursor-not-allowed" : ""
+              }`}
+            >
+              {timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP"}
+            </button>
+          </div>
         </form>
         <p className="mt-10 text-center text-sm text-gray-500">
           Back to login page{" "}
@@ -152,7 +147,9 @@ const ResetPassword: React.FC = () => {
           </a>
         </p>
 
-        {message && <p className="mt-4 text-center text-sm text-red-600">{message}</p>}
+        {message && (
+          <p className="mt-4 text-center text-sm text-red-600">{message}</p>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import { registerUser, loginUser } from '#validators/user'
+import { registerUser, loginUser, updateInfo } from '#validators/user'
 import { SendOtpValidator, VerifyOtpValidator, ResetPasswordValidator } from '#validators/mail'
 // biome-ignore lint/style/useNodejsImportProtocol: <explanation>
 import { randomBytes } from 'crypto'
@@ -12,6 +12,7 @@ import { OtpService } from '#services/otp_service'
 import { mailQueue } from '#config/queue'
 import speakeasy from 'speakeasy'
 import { Queue } from 'bullmq'
+import cloudinary from '../../cloudinaryConfig.js'
 const emailQueue = new Queue('emails')
 
 export default class UsersController {
@@ -68,6 +69,28 @@ export default class UsersController {
     return {
       user: auth.user,
     }
+  }
+
+  async updateProfile({ auth, request }: HttpContext) {
+    const user = await auth.authenticate()
+    const data = await request.validateUsing(updateInfo)
+    const file = request.file("profile_picture", {
+      size: '2mb',
+      extnames: ['jpg', 'png', 'pdf'],
+    });
+
+    if(file){
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      const result = await cloudinary.uploader.upload(file?.tmpPath!, {
+        folder: "avatars",
+      });
+      user.profile_picture = result.secure_url;
+    }
+  
+    user.merge(data);
+    await user.save();
+  
+    return { status: "SUCCESS", message: "User information updated successfully", data: user };
   }
 
   public async sendOtpToEmail(email: string) {

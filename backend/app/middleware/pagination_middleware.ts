@@ -21,7 +21,6 @@ export default class PaginationMiddleware {
     }
 
     ctx.pagination = pagination
-    console.log('pagination', pagination)
     await next()
   }
 }

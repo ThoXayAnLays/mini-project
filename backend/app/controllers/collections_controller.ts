@@ -32,6 +32,15 @@ export default class CollectionsController {
     })
   }
 
+  public async getByOwner ({ auth, response, params} : HttpContext){
+    const user = await auth.authenticate()
+    const collections = await Collection.query()
+      .where('creator_id', user.id)
+      .preload('creator')
+      .paginate(params.page, params.perPage)
+    return response.ok(collections)
+  }
+
   public async update({ params, request, response }: HttpContext) {
     const collection = await Collection.findOrFail(params.id)
     const payload = await CollectionValidator.addCollection.validate(request.body())

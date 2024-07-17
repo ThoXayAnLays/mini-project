@@ -8,6 +8,7 @@ import {
 import { useAuth } from "../providers/AuthProvider";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import UpdateProfileModal from "../components/UpdateProfileModal";
 
 const ProfilePage = () => {
   const token = useAuth();
@@ -17,22 +18,30 @@ const ProfilePage = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [error, setError] = useState<undefined | string>(undefined);
+  const defaultAvatar = "src/assets/default_avatar.png";
   const [userInfo, setUserInfo] = useState({
     username: "",
     email: "",
-    wallet_address: "",
-    profile_picture: "",
+    walletAddress: "",
+    profilePicture: "",
     bio: "",
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const handleUpdateProfile = (updatedUserInfo: any) => {
+    setUserInfo(updatedUserInfo);
+    toast.success("Profile updated successfully");
+  };
 
   useEffect(() => {
     // Function to fetch user info
     const fetchUserInfo = async () => {
       try {
         const data = await me(token.token);
-        console.log("data :>> ", data);
-        
-        setUserInfo(data);
+        console.log("data :>> ", data.user);
+
+        setUserInfo(data.user);
       } catch (error) {
         console.error("Error fetching user info:", error);
       }
@@ -85,7 +94,7 @@ const ProfilePage = () => {
       <div className="bg-white shadow-md rounded-lg p-4">
         <div className="mb-4 flex items-center">
           <img
-            src={userInfo.profile_picture}
+            src={userInfo.profilePicture || defaultAvatar}
             alt="Profile"
             className="w-16 h-16 rounded-full mr-4"
           />
@@ -95,7 +104,7 @@ const ProfilePage = () => {
           </div>
         </div>
         <p className="mb-4">
-          <strong>Wallet Address:</strong> {userInfo.wallet_address}
+          <strong>Wallet Address:</strong> {userInfo.walletAddress}
         </p>
         <p className="mb-4">
           <strong>Bio:</strong> {userInfo.bio}
@@ -130,9 +139,22 @@ const ProfilePage = () => {
             Activate 2FA
           </button>
         )}
+        {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 mt-4"
+        >
+          Update Profile
+        </button>
         {message && <p>{message}</p>}
         {error && <p className="text-red-500 text-sm">{error}</p>}
       </div>
+      <UpdateProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        userInfo={userInfo}
+        onUpdate={handleUpdateProfile}
+      />
     </div>
   );
 };
