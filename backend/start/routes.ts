@@ -72,16 +72,17 @@ router
     router
       .group(() => {
         router.get('/', [CollectionsController, 'index']).use(middleware.pagination())
-        router.get('/:id', [CollectionsController, 'show'])
         router
-          .get('/getByOwner', [CollectionsController, 'getByOwner'])
+          .get('/get-by-owner', [CollectionsController, 'getByOwner'])
           .use(middleware.pagination())
           .use(middleware.auth({ guards: ['api'] }))
+        router.get('/:id', [CollectionsController, 'show'])
+        
         router
           .post('/', [CollectionsController, 'create'])
           .use(middleware.auth({ guards: ['api'] }))
         router
-          .patch('/:id', [CollectionsController, 'update'])
+          .put('/:id', [CollectionsController, 'update'])
           .use(middleware.auth({ guards: ['api'] }))
         router
           .delete('/:id', [CollectionsController, 'delete'])

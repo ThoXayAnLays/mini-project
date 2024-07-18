@@ -48,6 +48,20 @@ export const me = async (token: any) => {
   }
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export const updateProfile = async (data: any, token: any) => {
+  try {
+    const response = await axiosInstance.put("/auth/update-profile", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    return { status: "ERROR", message: "Failed to update profile." };
+  }
+}
+
 export const sendOtp = async (email: string) => {
   try {
     const response = await axiosInstance.post("/auth/send-otp", { email });
