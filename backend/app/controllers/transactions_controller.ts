@@ -248,6 +248,10 @@ export default class TransactionsController {
         .whereNot('id', highestBid.id)
         .update({ status: 'rejected' })
 
+      auction.highest_bid = highestBid.bid_amount
+      auction.highest_bidder_id = highestBid.bidder_id
+      await auction.save()
+
       highestBid.status = 'accepted'
       await highestBid.save()
 

@@ -13,6 +13,12 @@ export default class CollectionsController {
     return response.created(collection)
   }
 
+  public async getByOwner ({ auth, response, params} : HttpContext){
+    const user = await auth.authenticate()
+    const collections = await Collection.query().where('creator_id', user.id).preload('creator').paginate(params.page, params.perPage)
+    return response.ok({data:collections})
+  }
+
   public async index({ response, params }: HttpContext) {
     const collections = await Collection.query()
       .preload('creator')
@@ -32,18 +38,9 @@ export default class CollectionsController {
     })
   }
 
-  public async getByOwner ({ auth, response, params} : HttpContext){
-    const user = await auth.authenticate()
-    const collections = await Collection.query()
-      .where('creator_id', user.id)
-      .preload('creator')
-      .paginate(params.page, params.perPage)
-    return response.ok(collections)
-  }
-
   public async update({ params, request, response }: HttpContext) {
     const collection = await Collection.findOrFail(params.id)
-    const payload = await CollectionValidator.addCollection.validate(request.body())
+    const payload = await CollectionValidator.updateCollection.validate(request.body())
     collection.merge(payload)
     await collection.save()
     return response.ok(collection)

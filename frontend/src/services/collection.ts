@@ -26,9 +26,9 @@ export const addCollection = async (data: addCollection, token: any) => {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const updateCollection = async (id: string, data: updateCollection, token: any) => {
+export const eidtCollection = async (id: string, data: updateCollection, token: any) => {
     try {
-        const response = await axiosInstance.patch(`/collection/${id}`, data, {
+        const response = await axiosInstance.put(`/collection/${id}`, data, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -76,7 +76,7 @@ export const showCollection = async (id: string) => {
 export const getCollectionByUser = async (token: any) => {
     try {
         // biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
-        const response = await axiosInstance.get(`/collection/getByOwner`, {
+        const response = await axiosInstance.get(`/collection/get-by-owner`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

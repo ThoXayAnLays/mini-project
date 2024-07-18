@@ -4,6 +4,7 @@ import { useState } from "react";
 interface UpdateProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   userInfo: {
     username: string;
     email: string;
