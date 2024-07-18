@@ -41,6 +41,7 @@ export default class CollectionsController {
   public async update({ params, request, response }: HttpContext) {
     const collection = await Collection.findOrFail(params.id)
     const payload = await CollectionValidator.updateCollection.validate(request.body())
+    const payload = await CollectionValidator.updateCollection.validate(request.body())
     collection.merge(payload)
     await collection.save()
     return response.ok(collection)
