@@ -52,7 +52,7 @@ router
           .use(middleware.auth({ guards: ['api'] }))
         router.get('/me', [UsersController, 'me']).use(middleware.auth({ guards: ['api'] }))
         router
-          .post('/update-profile', [UsersController, 'updateProfile'])
+          .put('/update-profile', [UsersController, 'updateProfile'])
           .use(middleware.auth({ guards: ['api'] }))
         router.post('/send-otp', [UsersController, 'sendOtp'])
         router.post('/verify-otp', [UsersController, 'verifyOtp'])

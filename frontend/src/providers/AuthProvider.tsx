@@ -1,61 +1,140 @@
-import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import type React from "react";
+import { createContext, useState, useContext, useEffect, useMemo, type ReactNode } from "react";
 import axiosInstance from "../libs/axiosInstance";
 
+interface UserProfile {
+  username: string;
+  email: string;
+  bio: string;
+  walletAddress: string;
+  profilePicture: string | null;
+}
+
+interface UserContextType {
+  user: UserProfile | null;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined);
+
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
+};
+
 interface AuthContextValue {
-  token: null | string;
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  setToken: (newToken: any) => void;
+  token: string | null;
+  setToken: (newToken: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({ token: null, setToken: () => {} });
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const AuthProvider = ({ children }: AuthProviderProps) => {
-  // State to hold the authentication token
-  const [token, setToken_] = useState(localStorage.getItem("token"));
+const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [token, setToken_] = useState<string | null>(localStorage.getItem("token"));
 
-  // Function to set the authentication token
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const setToken = (newToken: any) => {
+  const setToken = (newToken: string | null) => {
     setToken_(newToken);
   };
 
   useEffect(() => {
     if (token) {
       // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-      // biome-ignore lint/style/useTemplate: <explanation>
-      axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + token;
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       localStorage.setItem("token", token);
     } else {
       // biome-ignore lint/complexity/useLiteralKeys: <explanation>
       // biome-ignore lint/performance/noDelete: <explanation>
-      delete axiosInstance.defaults.headers.common["Authorization"];
+            delete axiosInstance.defaults.headers.common["Authorization"];
       localStorage.removeItem("token");
     }
   }, [token]);
 
-  // Memoized value of the authentication context
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  const contextValue = useMemo(
-    () => ({
-      token,
-      setToken,
-    }),
-    [token]
-  );
+  const authContextValue = useMemo(() => ({ token, setToken }), [token]);
+  const userContextValue = useMemo(() => ({ user, setUser }), [user]);
 
-  // Provide the authentication context to the children components
   return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authContextValue}>
+      <UserContext.Provider value={userContextValue}>
+        {children}
+      </UserContext.Provider>
+    </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };
 
 export default AuthProvider;
+
+
+// import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+// import axiosInstance from "../libs/axiosInstance";
+
+// interface AuthContextValue {
+//   token: null | string;
+//   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+//   setToken: (newToken: any) => void;
+// }
+
+// const AuthContext = createContext<AuthContextValue>({ token: null, setToken: () => {} });
+
+// interface AuthProviderProps {
+//   children: ReactNode;
+// }
+
+// // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// const AuthProvider = ({ children }: AuthProviderProps) => {
+//   // State to hold the authentication token
+//   const [token, setToken_] = useState(localStorage.getItem("token"));
+
+//   // Function to set the authentication token
+//   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+//   const setToken = (newToken: any) => {
+//     setToken_(newToken);
+//   };
+
+//   useEffect(() => {
+//     if (token) {
+//       // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+//       // biome-ignore lint/style/useTemplate: <explanation>
+//       axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + token;
+//       localStorage.setItem("token", token);
+//     } else {
+//       // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+//       // biome-ignore lint/performance/noDelete: <explanation>
+//       delete axiosInstance.defaults.headers.common["Authorization"];
+//       localStorage.removeItem("token");
+//     }
+//   }, [token]);
+
+//   // Memoized value of the authentication context
+//   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+//   const contextValue = useMemo(
+//     () => ({
+//       token,
+//       setToken,
+//     }),
+//     [token]
+//   );
+
+//   // Provide the authentication context to the children components
+//   return (
+//     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => {
+//   return useContext(AuthContext);
+// };
+
+// export default AuthProvider;

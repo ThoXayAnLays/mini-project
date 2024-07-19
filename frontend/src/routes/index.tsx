@@ -20,6 +20,9 @@ import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswod from "../pages/ResetPassword";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import OfferByNft from "../pages/OfferByNft";
+import AuctionByNft from "../pages/AuctionByNft";
+import CollectionDetail from "../pages/CollectionDetail";
 
 const AppRoutes: React.FC = () => {
   const { token } = useAuth();
@@ -50,10 +53,29 @@ const AppRoutes: React.FC = () => {
             </>
           ),
         },
-        // {
-        //   path: "/logout",
-        //   element: <Logout />,
-        // },
+        {
+          path: "/collection/:collectionId",
+          element: (
+            <>
+              <Header /> <CollectionDetail /> <Footer />
+            </>
+          ),
+        },
+        {
+          path: "/offer-by-nft/:nftId",
+          element: (
+            <>
+              <Header /> <OfferByNft /> <Footer />
+            </>
+          ),
+        },{
+          path: "/auction-by-nft/:nftId",
+          element: (
+            <>
+              <Header /> <AuctionByNft /> <Footer />
+            </>
+          )
+        }
       ],
     },
   ];
@@ -99,24 +121,6 @@ const AppRoutes: React.FC = () => {
 
   // Provide the router configuration using RouterProvider
   return <RouterProvider router={router} />;
-
-  // return (
-  //   <Router>
-  //     <Routes>
-  //       <Route path="/" element={<Home />} />
-  //       <Route path="/login" element={<Login />} />
-  //       <Route path="/signup" element={<Register />} />
-  //       <Route path="/verify-otp" element={<VerifyOtp />} />
-
-  //         <Route path="/" element={<ProtectedRoute />}>
-  //           <Route path="/profile" element={<ProfilePage />} />
-  //           <Route path="/logout" element={<div>Logged out</div>} />
-  //         </Route>
-
-  //       <Route path="*" element={<NotFound />} />
-  //     </Routes>
-  //   </Router>
-  // );
 };
 
 export default AppRoutes;

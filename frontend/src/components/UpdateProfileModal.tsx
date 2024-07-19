@@ -7,7 +7,6 @@ interface UpdateProfileModalProps {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   userInfo: {
     username: string;
-    email: string;
     walletAddress: string;
     bio: string;
     profilePicture: string;
@@ -37,10 +36,21 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({
     }
   };
 
-  const handleSubmit = () => {
-    // Handle profile update logic here
-    onUpdate(updatedUserInfo);
-    onClose();
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("username", updatedUserInfo.username);
+    formData.append("walletAddress", updatedUserInfo.walletAddress);
+    formData.append("bio", updatedUserInfo.bio);
+    if (selectedFile) {
+      formData.append("profile_picture", selectedFile);
+    }
+
+    try {
+      await onUpdate(formData);
+      onClose();
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
   };
 
   if (!isOpen) return null;
@@ -55,16 +65,6 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({
             type="text"
             name="username"
             value={updatedUserInfo.username}
-            onChange={handleInputChange}
-            className="w-full border p-2 rounded"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={updatedUserInfo.email}
             onChange={handleInputChange}
             className="w-full border p-2 rounded"
           />

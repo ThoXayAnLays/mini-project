@@ -49,10 +49,11 @@ export const me = async (token: any) => {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const updateProfile = async (data: any, token: any) => {
+export const updateProfile = async (formData: FormData, token: any) => {
   try {
-    const response = await axiosInstance.put("/auth/update-profile", data, {
+    const response = await axiosInstance.put("/auth/update-profile", formData, {
       headers: {
+        'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${token}`,
       },
     });

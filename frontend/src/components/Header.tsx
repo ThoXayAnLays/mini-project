@@ -1,5 +1,5 @@
 import type React from "react";
-import { useAuth } from "../providers/AuthProvider";
+import { useAuth, useUser } from "../providers/AuthProvider";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLogout } from "./Logout";
@@ -13,7 +13,7 @@ interface UserProfile {
 }
 
 const Header: React.FC = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const { user, setUser } = useUser();
   const location = useLocation();
   const { token } = useAuth();
   const excludedPaths = ["/login", "/register", "/verify-otp", "*"];
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
     };
 
     if (token) getProfile();
-  }, [handleLogout, token]);
+  }, [handleLogout, token, setUser]);
 
   return (
     <>

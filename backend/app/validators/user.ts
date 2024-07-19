@@ -32,6 +32,10 @@ export const updateInfo = vine.compile(
   vine.object({
     username: vine.string().optional(),
     bio: vine.string().optional(),
+    // profile_picture:vine.file({
+    //   size: '2mb',
+    //   extnames: ['jpg', 'png', 'pdf'],
+    // }).optional(),
     wallet_address: vine
       .string()
       .unique(async (db, value) => {
