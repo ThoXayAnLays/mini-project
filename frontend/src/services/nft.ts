@@ -36,7 +36,7 @@ export const addNft = async (data: addNft, token: any) => {
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const updateNft = async (id: string, data: updateNft, token: any) => {
     try {
-        const response = await axiosInstance.patch(`/nft/${id}`, data, {
+        const response = await axiosInstance.put(`/nft/${id}`, data, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

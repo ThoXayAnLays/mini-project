@@ -32,6 +32,8 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // biome-ignore lint/complexity/useOptionalChain: <explanation>
     if (e.target.files && e.target.files[0]) {
+      console.log("Image:::", e.target.files[0]);
+      
       setSelectedFile(e.target.files[0]);
     }
   };

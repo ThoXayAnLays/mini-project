@@ -95,7 +95,7 @@ router
         router.get('/', [NftsController, 'index']).use(middleware.pagination())
         router.get('/:id', [NftsController, 'show'])
         router.post('/', [NftsController, 'create']).use(middleware.auth({ guards: ['api'] }))
-        router.patch('/:id', [NftsController, 'update']).use(middleware.auth({ guards: ['api'] }))
+        router.put('/:id', [NftsController, 'update']).use(middleware.auth({ guards: ['api'] }))
         router.delete('/:id', [NftsController, 'delete']).use(middleware.auth({ guards: ['api'] }))
       })
       .prefix('/nft')

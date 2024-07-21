@@ -51,6 +51,8 @@ const ProfilePage = () => {
         const data = await me(token.token);
         console.log("user data:::", data.user);
         setUser(data.user);
+        console.log("user:::", data.user);
+        
         const collectionsData = await getCollectionByUser(token.token);
         console.log("collection data:::", collectionsData.data.data.data);
         setCollections(collectionsData.data.data.data);
