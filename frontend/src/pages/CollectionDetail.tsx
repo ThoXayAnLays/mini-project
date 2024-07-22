@@ -7,7 +7,7 @@ import NftModalComponent from "../components/NftModal";
 
 const CollectionDetail = () => {
   const defaultAvatar = "src/assets/default_avatar.png";
-  const { collectionId } = useParams<{ collectionId: string }>();
+  const { collectionId = "" } = useParams<{ collectionId: string }>();
   const { token } = useAuth();
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [collection, setCollection] = useState<any>(null);
@@ -19,6 +19,7 @@ const CollectionDetail = () => {
   const [currentNft, setCurrentNft] = useState<any>(null);
   const navigate = useNavigate();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const fetchCollectionDetail = async () => {
       try {
@@ -31,7 +32,7 @@ const CollectionDetail = () => {
     };
 
     fetchCollectionDetail();
-  }, [collectionId]);
+  }, [collectionId, setNfts]);
 
   const handleAddNft = () => {
     setCurrentNft(null);
@@ -62,14 +63,20 @@ const CollectionDetail = () => {
     if (currentNft) {
       try {
         await updateNft(currentNft.id, data, token);
-        setNfts(nfts.map((nft) => (nft.id === currentNft.id ? { ...nft, ...data } : nft)));
+        setNfts(
+          nfts.map((nft) =>
+            nft.id === currentNft.id ? { ...nft, ...data } : nft
+          )
+        );
       } catch (error) {
         setError("Failed to update NFT.");
       }
     } else {
       try {
         const response = await addNft(data, token);
-        setNfts([...nfts, response.data]);
+        console.log("nftrespone:::", response.data.data);
+        
+        setNfts([...nfts, response.data.data]);
       } catch (error) {
         setError("Failed to add NFT.");
       }
@@ -94,7 +101,7 @@ const CollectionDetail = () => {
       <h1 className="text-3xl font-bold mb-4">{collection.name}</h1>
       <p className="mb-4">{collection.description}</p>
       {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-<button
+      <button
         onClick={handleAddNft}
         className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
       >
@@ -102,52 +109,56 @@ const CollectionDetail = () => {
       </button>
       {nfts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {nfts.map((nft) => (
-            nft && <div key={nft.id} className="border p-4 rounded">
-              <img
-                src={nft?.imageUrl || defaultAvatar}
-                alt={nft.title}
-                className="w-full h-48 object-cover mb-2"
-              />
-              <h3 className="text-lg font-semibold">{nft.title}</h3>
-              <p>{nft.description}</p>
-              <p>Price: ${nft.price}</p>
-              <p>Owner: {nft.owner.username}</p>
-              <p>Sale type: {nft.saleType}</p>
-              <div className="flex justify-between">
-                {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-<button
-                  onClick={() => handleUpdateNft(nft)}
-                  className="bg-yellow-500 text-white px-2 py-1 rounded"
-                >
-                  Update
-                </button>
-                {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-<button
-                  onClick={() => handleDeleteNft(nft.id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-              <div className="flex justify-between mt-2">
-                {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-<button
-                  onClick={() => handleShowOffer(nft.id)}
-                  className="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Show Offer
-                </button>
-                {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-<button
-                  onClick={() => handleShowAuction(nft.id)}
-                  className="bg-indigo-500 text-white px-2 py-1 rounded"
-                >
-                  Show Auction
-                </button>
-              </div>
-            </div>
-          ))}
+          {nfts.map(
+            (nft) =>
+              nft && (
+                <div key={nft.id} className="border p-4 rounded">
+                  <img
+                    src={nft?.imageUrl || defaultAvatar}
+                    alt={nft.title}
+                    className="w-full h-48 object-cover mb-2"
+                  />
+                  <h3 className="text-lg font-semibold">{nft.title}</h3>
+                  <p>{nft.description}</p>
+                  <p>Price: ${nft.price}</p>
+                  <p>Owner: {nft.owner.username}</p>
+                  <p>Sale type: {nft.saleType}</p>
+                  <div className="flex justify-between">
+                    {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+                    <button
+                      onClick={() => handleUpdateNft(nft)}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                    >
+                      Update
+                    </button>
+                    {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+                    <button
+                      onClick={() => handleDeleteNft(nft.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  {nft.saleType === "offer" ? (
+                    // biome-ignore lint/a11y/useButtonType: <explanation>
+                    <button
+                      onClick={() => handleShowOffer(nft.id)}
+                      className="bg-green-500 text-white px-2 py-1 rounded"
+                    >
+                      Show Offer
+                    </button>
+                  ) : (
+                    // biome-ignore lint/a11y/useButtonType: <explanation>
+                    <button
+                      onClick={() => handleShowAuction(nft.id)}
+                      className="bg-indigo-500 text-white px-2 py-1 rounded"
+                    >
+                      Show Auction
+                    </button>
+                  )}
+                </div>
+              )
+          )}
         </div>
       ) : (
         <p>No NFTs found in this collection.</p>

@@ -13,11 +13,7 @@ interface ICreateAuction {
 export const getAllAuction = async () => {
   try {
     const response = await axiosInstance.get("/auction/all-auction");
-    return {
-      status: "SUCCESS",
-      message: "Get all auction successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch auction." };
   }
@@ -26,11 +22,7 @@ export const getAllAuction = async () => {
 export const getAuctionByNft = async (id: string) => {
   try {
     const response = await axiosInstance.get(`/auction/auction-by-nft/${id}`);
-    return {
-      status: "SUCCESS",
-      message: "Get auction of nft successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch auction of nft." };
   }
@@ -45,11 +37,7 @@ export const getAuctionByUser = async (token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Get auction of user successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch auction of user." };
   }
@@ -64,11 +52,7 @@ export const sendOtp = async (token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Send OTP successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to send OTP." };
   }
@@ -83,11 +67,7 @@ export const createAuction = async (data: ICreateAuction, token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Create auction successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to create auction." };
   }

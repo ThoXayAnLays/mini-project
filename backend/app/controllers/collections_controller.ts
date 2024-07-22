@@ -29,7 +29,7 @@ export default class CollectionsController {
   public async show({ params, response }: HttpContext) {
     const collection = await Collection.findOrFail(params.id)
     await collection.load('creator')
-    const nfts = await collection.related('nfts').query().preload('owner')
+    const nfts = await collection.related('nfts').query().preload('owner').preload('creator')
     return response.ok({
       data: {
         collection,

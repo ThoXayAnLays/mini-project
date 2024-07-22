@@ -40,7 +40,7 @@ export default class TransactionsController {
     console.log('OTP:', otp)
 
     await emailQueue.add('send_otp', { email: user.email, otp })
-    response.send({ message: 'OTP sent to your email. ' })
+    response.json({code: 200, message: 'OTP sent to your email.' })
   }
 
   public async verifyOtp({ auth, request, response }: HttpContext) {
@@ -49,23 +49,23 @@ export default class TransactionsController {
     const { otp, data } = request.only(['otp', 'data'])
 
     if (!user || !user.email || !OtpService.verifyOtp(user.email, otp)) {
-      return response.badRequest('Invalid or expired OTP.')
+      return response.json({code: 400, message: 'Invalid or expired OTP.'})
     }
 
     switch (action) {
       case actionTypes.OFFER: {
         const createOffer = await addOffer.validate(data)
         const response = await this.createOffer(user.id, createOffer)
-        if (response?.message) {
-          return response?.message
+        if (response) {
+          return response
         }
         break
       }
       case actionTypes.BID: {
         const createBid = await addBid.validate(data)
         const response = await this.createBid(user.id, createBid)
-        if (response?.message) {
-          return response?.message
+        if (response) {
+          return response
         }
         break
       }
@@ -74,8 +74,8 @@ export default class TransactionsController {
         console.log('createAuction: ', createAuction);
         
         const response = await this.createAuction(user.id, createAuction)
-        if (response?.message) {
-          return response?.message
+        if (response) {
+          return response
         }
         break
       }
@@ -85,8 +85,8 @@ export default class TransactionsController {
       }
       case actionTypes.REJECT: {
         const response = await this.rejectOffer(user.id, data)
-        if (response?.message) {
-          return response?.message
+        if (response) {
+          return response
         }
         break
       }
@@ -128,10 +128,10 @@ export default class TransactionsController {
   private async createBid(userId: string, data: any) {
     const auction = await Auction.query().where('id', data.auction_id).firstOrFail()
     if (auction.is_ended || auction.auction_end < DateTime.now()) {
-      return { message: 'Auction has ended' }
+      return { code: 400, message: 'Auction has ended' }
     }
     if(data.bid_amount < auction.start_price) {
-      return { message: 'Bid amount must be greater than the start price' }
+      return { code: 406, message: 'Bid amount must be greater than the start price' }
     }
     const bid = await Bid.query()
       .where('bidder_id', userId)
@@ -139,7 +139,7 @@ export default class TransactionsController {
       .first()
     if (!bid) {
       if (userId === auction.creator_id) {
-        return { message: 'You cannot bid on your own auction' }
+        return { code: 403, message: 'You cannot bid on your own auction' }
       }
       const newBid = await Bid.create({
         ...data,
@@ -159,16 +159,16 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createAuction(userId: string, data: any) {
     if(DateTime.fromISO(data.auction_end) < DateTime.now()) {
-      return { code: 401, message: 'Auction end date must be in the future' }
+      return { code: 400, message: 'Auction end date must be in the future' }
     }
     const auction = await Auction.query().where('nft_id', data.nft_id).first()
     if (!auction) {
       const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
       if (nft.sale_type !== 'auction') {
-        return { code: 401, message: 'NFT is for offer only!' }
+        return { code: 406, message: 'NFT is for offer only!' }
       }
       if (userId !== nft.owner_id) {
-        return { code: 401, message: 'You cannot create an auction for an item you do not own' }
+        return { code: 403, message: 'You cannot create an auction for an item you do not own' }
       }
 
       const newAuction = await Auction.create({
@@ -193,10 +193,10 @@ export default class TransactionsController {
   private async acceptOffer(userId: string, data: any) {
     const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
     if(offer.status !== 'pending') {
-      return { message: 'Offer has already been accepted or rejected by the owner' }
+      return { code: 406, message: 'Offer has already been accepted or rejected by the owner' }
     }
     if (offer.nft.owner_id !== userId) {
-      return { message: 'You are not the owner of this NFT.' }
+      return { code: 403, message: 'You are not the owner of this NFT.' }
     }
     offer.status = 'accepted'
     await offer.save()
@@ -220,10 +220,10 @@ export default class TransactionsController {
   private async rejectOffer(userId: string, data: any) {
     const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
     if(offer.status !== 'pending') {
-      return { message: 'Offer has already been accepted or rejected by the owner' }
+      return { code: 406, message: 'Offer has already been accepted or rejected by the owner' }
     }
     if (offer.nft.owner_id !== userId) {
-      return { message: 'You are not the owner of this NFT.' }
+      return { code: 403, message: 'You are not the owner of this NFT.' }
     }
 
     offer.status = 'rejected'

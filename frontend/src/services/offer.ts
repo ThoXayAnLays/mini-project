@@ -25,14 +25,10 @@ interface IRejectOffer {
   };
 }
 
-export const offerByNft = async (id: string) => {
+export const offerByNft = async (nftId: string) => {
   try {
-    const response = await axiosInstance.get(`/offer/offer-by-nft/${id}`);
-    return {
-      status: "SUCCESS",
-      message: "Get offer of nft successfully.",
-      data: response.data,
-    };
+    const response = await axiosInstance.get(`/offer/offer-by-nft/${nftId}`);
+    return response.data;
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch offer of nft." };
   }
@@ -47,11 +43,7 @@ export const offerByUser = async (token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Get offer of user successfully.",
-      data: response.data,
-    };
+    return response.data;
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch offer of user." };
   }
@@ -66,11 +58,7 @@ export const sendOtp = async (token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Send OTP successfully.",
-      data: response.data,
-    };
+    return response.data;
   } catch (error) {
     return { status: "ERROR", message: "Failed to send OTP." };
   }
@@ -85,11 +73,7 @@ export const createOffer = async (data: ICreateOffer, token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Create offer successfully.",
-      data: response.data,
-    };
+    return response.data;
   } catch (error) {
     return {
       status: "ERROR",
@@ -107,11 +91,7 @@ export const acceptOffer = async (data: IAcceptOffer, token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Accept offer successfully.",
-      data: response.data,
-    };
+    return response.data;
   } catch (error) {
     return {
       status: "ERROR",
@@ -129,11 +109,7 @@ export const rejectOffer = async (data: IRejectOffer, token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Reject offer successfully.",
-      data: response.data,
-    };
+    return response.data;
   } catch (error) {
     return {
       status: "ERROR",

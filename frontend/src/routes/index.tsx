@@ -23,6 +23,8 @@ import Footer from "../components/Footer";
 import OfferByNft from "../pages/OfferByNft";
 import AuctionByNft from "../pages/AuctionByNft";
 import CollectionDetail from "../pages/CollectionDetail";
+import Offers from "../pages/Offer";
+import Auction from "../pages/Auction";
 
 const AppRoutes: React.FC = () => {
   const { token } = useAuth();
@@ -73,6 +75,22 @@ const AppRoutes: React.FC = () => {
           element: (
             <>
               <Header /> <AuctionByNft /> <Footer />
+            </>
+          )
+        },
+        {
+          path: "/offers/:nftId",
+          element: (
+            <>
+              <Header /> <Offers /> <Footer />
+            </>
+          )
+        },
+        {
+          path: "/auctions/:nftId",
+          element: (
+            <>
+              <Header /> <Auction /> <Footer />
             </>
           )
         }

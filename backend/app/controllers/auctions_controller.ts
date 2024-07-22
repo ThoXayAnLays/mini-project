@@ -8,7 +8,7 @@ export default class AuctionsController {
         .andWhere('is_ended', false)
         .preload('nft')
         .paginate(params.perPage, params.page)
-        response.send(auctions)
+        response.json({code: 200, message: "Get all auctions successfully", data: auctions})
     }
     
     public async show({ response, params }: HttpContext) {
@@ -18,7 +18,7 @@ export default class AuctionsController {
         .andWhere('nft_id', params.id)
         .preload('nft')
         .paginate(params.perPage, params.page)
-        response.send(auction)
+        response.json({code: 200, message: "Get all auctions by NFT successfully", data: auction})
     }
 
     public async auctionCreatedByUser({ response, params, auth }: HttpContext) {
@@ -29,6 +29,6 @@ export default class AuctionsController {
         .andWhere('creator_id', user.id)
         .preload('nft')
         .paginate(params.perPage, params.page)
-        response.send(auction)
+        response.json({code: 200, message: "Get all auctions by Creator successfully", data: auction})
     }
 }

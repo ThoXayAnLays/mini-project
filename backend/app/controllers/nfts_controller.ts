@@ -46,8 +46,9 @@ export default class NftsController {
       return response.forbidden({ message: 'You are not authorized to create an NFT in this collection' });
     }
     const nft = await NFT.create({ ...payload, creator_id: user.id, owner_id: user.id, image_url: image_url });
-  
-    return response.created(nft);
+    await nft.load('owner');
+    await nft.load('creator');
+    return response.json({code: 201, message: "Create nft successfully", data: nft});
   }
   
   public async update({ params, request, response, auth }: HttpContext) {
@@ -65,7 +66,7 @@ export default class NftsController {
     const user = await auth.authenticate();
     const collection = await Collection.findOrFail(payload.collection_id);
     if (collection.creator_id !== user.id) {
-      return response.forbidden({ message: 'You are not authorized to update this NFT in this collection' });
+      return response.json({ code: 403, message: 'You are not authorized to update this NFT in this collection' });
     }
     nft.merge({ ...payload, image_url: image_url });
     await nft.save();
@@ -89,8 +90,12 @@ export default class NftsController {
     return response.ok(nft)
   }
 
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ params, response, auth }: HttpContext) {
+    const token = await auth.authenticate()
     const nft = await NFT.findOrFail(params.id)
+    if(nft.owner_id !== token.id) {
+      return response.json({ code: 403, message: 'You are not authorized to delete this NFT' })
+    }
     await nft.delete()
     return response.ok({ message: 'Delete success' })
   }

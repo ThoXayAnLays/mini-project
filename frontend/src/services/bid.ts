@@ -12,11 +12,7 @@ interface ICreateBid {
 export const getBidByAuction = async (id: string) => {
   try {
     const response = await axiosInstance.get(`/bid/${id}`);
-    return {
-      status: "SUCCESS",
-      message: "Get bid of auction successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch bid of auction." };
   }
@@ -31,11 +27,7 @@ export const getBidByUser = async (token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Get bid of user successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to fetch bid of user." };
   }
@@ -50,11 +42,7 @@ export const sendOtp = async (token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Send OTP successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to send OTP." };
   }
@@ -69,11 +57,7 @@ export const createBid = async (data: ICreateBid, token: any) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      status: "SUCCESS",
-      message: "Create bid successfully.",
-      data: response.data,
-    };
+    return response.data
   } catch (error) {
     return { status: "ERROR", message: "Failed to create bid." };
   }

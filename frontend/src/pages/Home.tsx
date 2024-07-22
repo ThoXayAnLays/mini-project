@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { showCollection, indexCollection } from "../services/collection";
 import { indexNft, showNft } from "../services/nft";
+import { useNavigate } from "react-router-dom";
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [collections, setCollections] = useState<any[]>([]);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -19,7 +21,7 @@ const Home: React.FC = () => {
     const fetchCollection = async () => {
       try {
         const response = await indexCollection();
-        console.log(response.data);  // Check the structure of the response
+        console.log(response.data); // Check the structure of the response
         setCollections(response.data.data);
       } catch (error) {
         console.log("Fetch collection error: ", error);
@@ -32,26 +34,34 @@ const Home: React.FC = () => {
 
   const fetchNfts = async (collectionId: string | null = null) => {
     try {
-      if(!collectionId){
+      if (!collectionId) {
         const response = await indexNft();
         console.log("Nft: ", response.data.data);
-        
-        setNfts(response.data.data)
-      }else{
-        const response = await showCollection(collectionId)
+
+        setNfts(response.data.data);
+      } else {
+        const response = await showCollection(collectionId);
         console.log("Nft: ", response.data.data.nfts);
-        setNfts(response.data.data.nfts)
+        setNfts(response.data.data.nfts);
       }
     } catch (error) {
       console.log("Fetch NFT error: ", error);
-      
     }
   };
 
   const handleCollectionClick = (collectionId: string) => {
-    const newCollectionId = selectedCollection === collectionId ? null : collectionId;
+    const newCollectionId =
+      selectedCollection === collectionId ? null : collectionId;
     setSelectedCollection(newCollectionId);
     fetchNfts(newCollectionId);
+  };
+
+  const viewOffers = (nftId: string) => {
+    navigate(`/offers/${nftId}`);
+  };
+
+  const viewAuctions = (nftId: string) => {
+    navigate(`/auctions/${nftId}`);
   };
 
   return (
@@ -94,8 +104,20 @@ const Home: React.FC = () => {
                 <h3 className="text-lg font-semibold">{nft.title}</h3>
                 <p>{nft.description}</p>
                 <p>Price: ${nft.price}</p>
+                <p>Creator: {nft.creator.username}</p>
                 <p>Owner: {nft.owner.username}</p>
                 <p>Sale type: {nft.saleType}</p>
+                {nft.saleType === "offer" ? (
+                  // biome-ignore lint/a11y/useButtonType: <explanation>
+                  <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4" onClick={() => viewOffers(nft.id)}>
+                    View Offers
+                  </button>
+                ) : (
+                  // biome-ignore lint/a11y/useButtonType: <explanation>
+                  <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4" onClick={() => viewAuctions(nft.id)}>
+                    View Auction
+                  </button>
+                )}
               </div>
             ))}
           </div>
