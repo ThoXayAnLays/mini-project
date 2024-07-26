@@ -14,7 +14,7 @@ import Offer from '#models/offer'
 import { v4 as uuidv4 } from 'uuid'
 import { JwtAccessTokenProvider, JwtSecret } from '#providers/jwt_access_token_provider'
 import parseDuration from 'parse-duration'
-import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
+//import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],

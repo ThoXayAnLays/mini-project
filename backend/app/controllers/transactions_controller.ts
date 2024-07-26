@@ -99,7 +99,9 @@ export default class TransactionsController {
   private async createOffer(userId: string, data: any) {
     const offer = await Offer.query()
       .where('offeror_id', userId)
-      .where('nft_id', data.nft_id)
+      .andWhere('nft_id', data.nft_id)
+      .andWhere('status', 'pending')
+      .preload('nft')
       .first()
     if (!offer) {
       const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
@@ -119,7 +121,7 @@ export default class TransactionsController {
       // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       offer.offer_amount = data.offer_amount
-      await offer.save()
+      await offer?.save()
       return { code: 200, message: 'Offer updated successfully' }
     }
   }
@@ -161,7 +163,11 @@ export default class TransactionsController {
     if(DateTime.fromISO(data.auction_end) < DateTime.now()) {
       return { code: 400, message: 'Auction end date must be in the future' }
     }
-    const auction = await Auction.query().where('nft_id', data.nft_id).first()
+    const auction = await Auction.query()
+      .where('nft_id', data.nft_id)
+      .andWhere('is_ended', false)
+      .andWhere('auction_end', '>', DateTime.now().toJSDate())
+      .first()
     if (!auction) {
       const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
       if (nft.sale_type !== 'auction') {

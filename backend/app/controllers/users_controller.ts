@@ -3,17 +3,17 @@ import User from '#models/user'
 import { registerUser, loginUser, updateInfo } from '#validators/user'
 import { SendOtpValidator, VerifyOtpValidator, ResetPasswordValidator } from '#validators/mail'
 // biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-import { randomBytes } from 'crypto'
+//import { randomBytes } from 'crypto'
 // biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-import { promisify } from 'util'
+//import { promisify } from 'util'
 import {generateOTP} from '../utils/otp.js'
 import mail from '@adonisjs/mail/services/main'
 import { OtpService } from '#services/otp_service'
-import { mailQueue } from '#config/queue'
+//import { mailQueue } from '#config/queue'
 import speakeasy from 'speakeasy'
-import { Queue } from 'bullmq'
+//import { Queue } from 'bullmq'
 import cloudinary from '../../cloudinaryConfig.js'
-const emailQueue = new Queue('emails')
+//const emailQueue = new Queue('emails')
 
 export default class UsersController {
   /**
@@ -55,13 +55,6 @@ export default class UsersController {
     }
 
     return response.json({ token: tokenAuth });
-  }
-
-  async logout({ auth }: HttpContext) {
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-    const user = auth.user!
-    //await User.accessTokens.delete(user, user.currentAccessToken.identifier)
-    return { message: 'success' }
   }
 
   async me({ auth }: HttpContext) {

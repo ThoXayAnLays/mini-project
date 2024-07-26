@@ -10,6 +10,15 @@ interface ICreateAuction {
   };
 }
 
+export const listAllAuction = async () => {
+  try {
+    const response = await axiosInstance.get("/auction");
+    return response.data
+  } catch (error) {
+    return { status: "ERROR", message: "Failed to fetch all auctions." };
+  }
+}
+
 export const getAllAuction = async () => {
   try {
     const response = await axiosInstance.get("/auction/all-auction");

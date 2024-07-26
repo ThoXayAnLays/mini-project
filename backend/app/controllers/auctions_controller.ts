@@ -2,6 +2,13 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Auction from '#models/auction'
 
 export default class AuctionsController {
+    public async list({ response, params }: HttpContext) {
+        const auctions = await Auction.query()
+        .preload('nft')
+        .paginate(params.perPage, params.page)
+        response.json({code: 200, message: "Get all auctions successfully", data: auctions})
+    }
+    
     public async index({ response, params }: HttpContext) {
         const auctions = await Auction.query()
         .where('auction_end', '>', new Date())
@@ -16,7 +23,9 @@ export default class AuctionsController {
         .where('auction_end', '>', new Date())
         .andWhere('is_ended', false)
         .andWhere('nft_id', params.id)
-        .preload('nft')
+        .preload('nft', (query) => {
+            query.preload('owner')
+        })
         .paginate(params.perPage, params.page)
         response.json({code: 200, message: "Get all auctions by NFT successfully", data: auction})
     }

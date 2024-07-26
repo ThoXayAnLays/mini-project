@@ -1,5 +1,5 @@
-import env from '#start/env'
 import { defineConfig } from '@adonisjs/redis'
+import env from '#start/env'
 import type { InferConnections } from '@adonisjs/redis/types'
 
 const redisConfig = defineConfig({
@@ -17,7 +17,7 @@ const redisConfig = defineConfig({
     |
     */
     main: {
-      host: env.get('REDIS_HOST', '127.0.0.1'),
+      host: env.get('REDIS_HOST', 'redis'),
       port: env.get('REDIS_PORT',6379),
       password: env.get('REDIS_PASSWORD', ''),
       db: 0,

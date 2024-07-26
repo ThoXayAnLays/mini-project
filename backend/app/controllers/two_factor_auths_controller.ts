@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
-import User from '#models/user'
 import redis from '@adonisjs/redis/services/main'
 
 export default class TwoFactorAuthsController {
