@@ -44,6 +44,9 @@ export default class AuctionsController {
         .preload('nft', (query) => {
             query.preload('owner')
         })
+        .preload('nft', (query) => {
+            query.preload('owner')
+        })
         .paginate(params.perPage, params.page)
         response.json({code: 200, message: "Get all auctions by NFT successfully", data: auction})
     }
