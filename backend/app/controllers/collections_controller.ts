@@ -10,7 +10,7 @@ export default class CollectionsController {
     )
     const user = await auth.authenticate()
     const collection = await Collection.create({ ...payload, creator_id: user.id })
-    return response.created(collection)
+    return response.json({code: 201, data: collection})
   }
 
   public async getByOwner ({ auth, response, params} : HttpContext){
@@ -47,7 +47,10 @@ export default class CollectionsController {
   }
 
   public async delete({ params, response }: HttpContext) {
-    const collection = await Collection.findOrFail(params.id)
+    const collection = await Collection.query().where("id", params.id).first()
+    if (!collection) {
+      return response.notFound({message:"Collection not found"})
+    }
     await NFT.query().where('collection_id', collection.id)
     await collection.delete()
     return response.ok({message:"Delete success"})

@@ -32,6 +32,21 @@ export default class TransactionsController {
     protected user: User
   ) {}
 
+  public async index({ response, params }: HttpContext) {
+    const transactions = await Transaction.query()
+      .preload('nft', (nftQuery) => {
+        nftQuery.preload('owner').preload('creator')
+      })
+      .preload('buyer')
+      .preload('seller')
+      .paginate(params.page, params.perPage)
+    return response.json({
+      code: 200,
+      message: 'Get all transaction successfully',
+      data: transactions,
+    })
+  }
+
   public async sendOtp({ auth, response }: HttpContext) {
     const user = await auth.authenticate()
 
@@ -40,7 +55,7 @@ export default class TransactionsController {
     console.log('OTP:', otp)
 
     await emailQueue.add('send_otp', { email: user.email, otp })
-    response.json({code: 200, message: 'OTP sent to your email.' })
+    response.json({ code: 200, message: 'OTP sent to your email.' })
   }
 
   public async verifyOtp({ auth, request, response }: HttpContext) {
@@ -49,7 +64,7 @@ export default class TransactionsController {
     const { otp, data } = request.only(['otp', 'data'])
 
     if (!user || !user.email || !OtpService.verifyOtp(user.email, otp)) {
-      return response.json({code: 400, message: 'Invalid or expired OTP.'})
+      return response.json({ code: 400, message: 'Invalid or expired OTP.' })
     }
 
     switch (action) {
@@ -71,8 +86,8 @@ export default class TransactionsController {
       }
       case actionTypes.AUCTION: {
         const createAuction = await addAuction.validate(data)
-        console.log('createAuction: ', createAuction);
-        
+        console.log('createAuction: ', createAuction)
+
         const response = await this.createAuction(user.id, createAuction)
         if (response) {
           return response
@@ -99,7 +114,9 @@ export default class TransactionsController {
   private async createOffer(userId: string, data: any) {
     const offer = await Offer.query()
       .where('offeror_id', userId)
-      .where('nft_id', data.nft_id)
+      .andWhere('nft_id', data.nft_id)
+      .andWhere('status', 'pending')
+      .preload('nft')
       .first()
     if (!offer) {
       const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
@@ -119,7 +136,7 @@ export default class TransactionsController {
       // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       offer.offer_amount = data.offer_amount
-      await offer.save()
+      await offer?.save()
       return { code: 200, message: 'Offer updated successfully' }
     }
   }
@@ -130,7 +147,7 @@ export default class TransactionsController {
     if (auction.is_ended || auction.auction_end < DateTime.now()) {
       return { code: 400, message: 'Auction has ended' }
     }
-    if(data.bid_amount < auction.start_price) {
+    if (data.bid_amount < auction.start_price) {
       return { code: 406, message: 'Bid amount must be greater than the start price' }
     }
     const bid = await Bid.query()
@@ -148,7 +165,7 @@ export default class TransactionsController {
       })
       await newBid.save()
       return { code: 201, message: 'Bid created successfully' }
-    // biome-ignore lint/style/noUselessElse: <explanation>
+      // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       bid.bid_amount = data.bid_amount
       await bid.save()
@@ -158,10 +175,14 @@ export default class TransactionsController {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async createAuction(userId: string, data: any) {
-    if(DateTime.fromISO(data.auction_end) < DateTime.now()) {
+    if (DateTime.fromISO(data.auction_end) < DateTime.now()) {
       return { code: 400, message: 'Auction end date must be in the future' }
     }
-    const auction = await Auction.query().where('nft_id', data.nft_id).first()
+    const auction = await Auction.query()
+      .where('nft_id', data.nft_id)
+      .andWhere('is_ended', false)
+      .andWhere('auction_end', '>', DateTime.now().toJSDate())
+      .first()
     if (!auction) {
       const nft = await NFT.query().where('id', data.nft_id).firstOrFail()
       if (nft.sale_type !== 'auction') {
@@ -179,7 +200,7 @@ export default class TransactionsController {
       })
       await newAuction.save()
       return { code: 201, message: 'Create new auction success' }
-    // biome-ignore lint/style/noUselessElse: <explanation>
+      // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       auction.creator_id = userId
       auction.start_price = data.start_price
@@ -192,7 +213,7 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async acceptOffer(userId: string, data: any) {
     const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
-    if(offer.status !== 'pending') {
+    if (offer.status !== 'pending') {
       return { code: 406, message: 'Offer has already been accepted or rejected by the owner' }
     }
     if (offer.nft.owner_id !== userId) {
@@ -219,7 +240,7 @@ export default class TransactionsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private async rejectOffer(userId: string, data: any) {
     const offer = await Offer.query().where('id', data.offer_id).preload('nft').firstOrFail()
-    if(offer.status !== 'pending') {
+    if (offer.status !== 'pending') {
       return { code: 406, message: 'Offer has already been accepted or rejected by the owner' }
     }
     if (offer.nft.owner_id !== userId) {

@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { offerByNft, createOffer, sendOtp } from "../services/offer";
 import { showNft } from "../services/nft";
-import { useAuth } from "../providers/AuthProvider";
+import { useAuth, useUser } from "../providers/AuthProvider";
+import { toast } from "react-toastify";
 
 const Offers: React.FC = () => {
   const { token } = useAuth();
+  const {user} = useUser();
   const { nftId = "" } = useParams<{ nftId: string }>();
+  const [isDone, setIsDone] = useState<boolean>(false);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [nft, setNft] = useState<any>(null);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -32,13 +35,14 @@ const Offers: React.FC = () => {
         console.log("offers:::", offersResponse.data.data);
 
         setOffers(offersResponse.data.data);
+
       } catch (error) {
         console.log("Fetch offers error: ", error);
       }
     };
 
     fetchOffers();
-  }, [nftId, setOffers]);
+  }, [nftId, isDone]);
 
   const handleCreateOffer = async () => {
     try {
@@ -46,8 +50,23 @@ const Offers: React.FC = () => {
         { action: 1, otp, data: { nft_id: nftId, offer_amount: newOffer } },
         token
       );
-      setHighlightedOffer(response.data);
+      if (response.code === 400) {
+        toast.error("Invalid or expired OTP");
+      }
+      if (response.code === 201) {
+        setIsDone(true);
+        setOtp("");
+        setNewOffer(0);
+        toast.success("Offer created successfully");
+      }
+      if (response.code === 200) {
+        setIsDone(true);
+        setOtp("");
+        setNewOffer(0);
+        toast.success("Offer updated successfully");
+      }
     } catch (error) {
+      toast.error("Offer creation failed");
       console.log("Create offer error: ", error);
     }
   };
@@ -57,6 +76,7 @@ const Offers: React.FC = () => {
       await sendOtp(token);
       setOtpSent(true);
       setCountdown(60);
+      toast.success("OTP sent successfully");
 
       const intervalId = setInterval(() => {
         setCountdown((prevCountdown) => {
@@ -81,7 +101,7 @@ const Offers: React.FC = () => {
           <img
             src={nft.imageUrl}
             alt={nft.title}
-            className="w-full h-48 object-cover mb-2"
+            className="w-200 h-200 object-cover mb-2"
           />
           <p className="mb-2">Description: {nft.description}</p>
           <p className="mb-2">Price: ${nft.price}</p>
@@ -97,13 +117,21 @@ const Offers: React.FC = () => {
             <li
               key={offer.id}
               className={`p-2 border rounded mb-2 ${
-                highlightedOffer === offer.id ? "bg-yellow-300" : ""
+                offer.offerorId === user?.id  ? "bg-gray-500 text-white" : ""
               }`}
             >
               <p>
                 ${offer.offerAmount} by {offer.offeror.username}
               </p>
-              <p>Status: {offer.status}</p>
+              {offer.status === "pending" && (
+                <p style={{ color: "blue" }}>Status: Pending</p>
+              )}
+              {offer.status === "accepted" && (
+                <p style={{ color: "green" }}>Status: Accepted</p>
+              )}
+              {offer.status === "rejected" && (
+                <p style={{ color: "red" }}>Status: Rejected</p>
+              )}
               <p>Date: {offer.updatedAt}</p>
             </li>
           ))}
@@ -112,7 +140,7 @@ const Offers: React.FC = () => {
         <p>No offers yet</p>
       )}
 
-      {token ? (
+      {(token && nft?.ownerId !== user?.id) ? (
         <div className="mt-4">
           <input
             type="number"
@@ -147,7 +175,7 @@ const Offers: React.FC = () => {
           </button>
         </div>
       ) : (
-        <p>Please login to make an offer</p>
+        <p>You are not authorize to make offer</p>
       )}
     </div>
   );

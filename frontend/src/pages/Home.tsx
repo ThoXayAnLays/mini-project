@@ -1,7 +1,6 @@
 // src/pages/Home.tsx
 import type React from "react";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { showCollection, indexCollection } from "../services/collection";
 import { indexNft, showNft } from "../services/nft";
 import { useNavigate } from "react-router-dom";
@@ -76,7 +75,7 @@ const Home: React.FC = () => {
               // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
               <li
                 key={collection.id}
-                className={`p-2 cursor-pointer ${
+                className={`p-2 cursor-pointer  ${
                   selectedCollection === collection.id
                     ? "bg-blue-500 text-white"
                     : ""
@@ -95,7 +94,7 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-3 gap-4">
             {/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
             {nfts.map((nft: any) => (
-              <div key={nft.id} className="border p-4">
+              <div key={nft.id} className="border p-4 bg-gray-500 text-white">
                 <img
                   src={nft.imageUrl}
                   alt={nft.title}
@@ -109,7 +108,7 @@ const Home: React.FC = () => {
                 <p>Sale type: {nft.saleType}</p>
                 {nft.saleType === "offer" ? (
                   // biome-ignore lint/a11y/useButtonType: <explanation>
-                  <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4" onClick={() => viewOffers(nft.id)}>
+                  <button className="bg-green-500 text-white px-4 py-2 rounded mb-4" onClick={() => viewOffers(nft.id)}>
                     View Offers
                   </button>
                 ) : (

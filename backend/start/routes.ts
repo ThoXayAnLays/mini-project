@@ -47,9 +47,6 @@ router
       .group(() => {
         router.post('/register', [UsersController, 'register'])
         router.post('/login', [UsersController, 'login'])
-        router
-          .post('/logout', [UsersController, 'logout'])
-          .use(middleware.auth({ guards: ['api'] }))
         router.get('/me', [UsersController, 'me']).use(middleware.auth({ guards: ['api'] }))
         router
           .put('/update-profile', [UsersController, 'updateProfile'])
@@ -118,6 +115,8 @@ router
 
     router
       .group(() => {
+        router.get('/', [AuctionsController, 'list']).use(middleware.pagination())
+        router.get('/auction-by-id/:id', [AuctionsController, 'showItemOnList']).use(middleware.pagination())
         router.get('/all-auction', [AuctionsController, 'index']).use(middleware.pagination())
         router.get('/auction-by-nft/:id', [AuctionsController, 'show']).use(middleware.pagination())
         router
@@ -148,5 +147,9 @@ router
           .use(middleware.auth({ guards: ['api'] }))
       })
       .prefix('/bid')
+  
+    router.group(() => {
+      router.get('/', [TransactionsController, 'index']).use(middleware.pagination())
+    }).prefix('/transaction')
   })
   .prefix('/api/v1')

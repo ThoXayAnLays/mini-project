@@ -2,19 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import NFT from '#models/nft'
 import Collection from '#models/collection'
 import {addNft, updateNft, } from '#validators/nft'
-import Offer from '#models/offer'
-import Bid from '#models/bid'
 import cloudinary from '../../cloudinaryConfig.js'
-
-interface INft {
-  title: string;
-  description: string;
-  image_url: string;
-  collection_id: string;
-  metadata: string;
-  sale_type: string;
-  price: string;
-}
 
 export default class NftsController {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>

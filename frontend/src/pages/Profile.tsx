@@ -22,6 +22,7 @@ import { useAuth, useUser } from "../providers/AuthProvider";
 const ProfilePage = () => {
   const token = useAuth();
   //const { user, setUser } = useUser();
+  const [isDone, setIsDone] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [secret, setSecret] = useState("");
   const [otpToken, setOtpToken] = useState("");
@@ -40,7 +41,8 @@ const ProfilePage = () => {
   const [collections, setCollections] = useState<any[]>([]);
   const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isUpdateCollectionModalOpen, setIsUpdateCollectionModalOpen] = useState(false);
+  const [isUpdateCollectionModalOpen, setIsUpdateCollectionModalOpen] =
+    useState(false);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [currentCollection, setCurrentCollection] = useState<any>(null);
 
@@ -52,7 +54,7 @@ const ProfilePage = () => {
         console.log("user data:::", data.user);
         setUser(data.user);
         console.log("user:::", data.user);
-        
+
         const collectionsData = await getCollectionByUser(token.token);
         console.log("collection data:::", collectionsData.data.data.data);
         setCollections(collectionsData.data.data.data);
@@ -61,7 +63,7 @@ const ProfilePage = () => {
       }
     };
     fetchUserInfo();
-  }, [token, setUser]);
+  }, [token, isDone]);
 
   const generateSecret = async () => {
     try {
@@ -84,6 +86,7 @@ const ProfilePage = () => {
         navigate("/profile");
       }
       toast.success("2FA token verified successfully");
+      setIsDone(!isDone);
       setError("");
     } catch (error) {
       toast.error("Failed to verify 2FA token. Please try again.");
@@ -96,6 +99,7 @@ const ProfilePage = () => {
       const response = await addCollection(newCollection, token.token);
       setCollections([...collections, response.data]);
       toast.success("Collection added successfully");
+      setIsDone(!isDone);
       setIsCollectionModalOpen(false);
     } catch (error) {
       toast.error("Failed to add collection. Please try again.");
@@ -114,7 +118,7 @@ const ProfilePage = () => {
         { name, description },
         token.token
       );
-      if (response.status === "SUCCESS") {
+      if (response.data.code === 200) {
         const updatedCollections = collections.map((collection) =>
           collection.id === updatedCollection.id
             ? updatedCollection
@@ -122,6 +126,7 @@ const ProfilePage = () => {
         );
         setCollections(updatedCollections);
         toast.success(response.message);
+        setIsDone(!isDone);
       } else {
         toast.error(response.message);
       }
@@ -133,9 +138,15 @@ const ProfilePage = () => {
 
   const handleDeleteCollection = async (id: string) => {
     try {
-      await deleteCollection(id, token.token);
-      setCollections(collections.filter((col) => col.id !== id));
-      toast.success("Collection deleted successfully");
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this collection?"
+      );
+      if (confirmDelete) {
+        await deleteCollection(id, token.token);
+        setCollections(collections.filter((col) => col.id !== id));
+        toast.success("Collection deleted successfully");
+        setIsDone(!isDone);
+      }
     } catch (error) {
       toast.error("Failed to delete collection. Please try again.");
     }
@@ -161,36 +172,35 @@ const ProfilePage = () => {
     }
   };
 
-
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4">Profile Page</h2>
       <div className="bg-white shadow-md rounded-lg p-4">
-      <div className="profile-header flex items-center">
-        <img
-          src={user?.profilePicture || defaultAvatar}
-          alt="Profile"
-          className="w-20 h-20 rounded-full"
-        />
-        <div className="ml-4">
-          <h1 className="text-2xl font-bold">{user?.username}</h1>
-          <p>{user?.bio}</p>
-          {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-<button
-            onClick={() => setIsProfileModalOpen(true)}
-            className="mt-2 bg-blue-500 text-white py-2 px-4 rounded"
-          >
-            Edit Profile
-          </button>
+        <div className="profile-header flex items-center">
+          <img
+            src={user?.profilePicture || defaultAvatar}
+            alt="Profile"
+            className="w-20 h-20 rounded-full"
+          />
+          <div className="ml-4">
+            <h1 className="text-2xl font-bold">{user?.username}</h1>
+            <p>{user?.bio}</p>
+            {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              className="mt-2 bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Edit Profile
+            </button>
+          </div>
         </div>
-      </div>
-      {/* Add other profile details and functionalities here */}
-      <UpdateProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        userInfo={user}
-        onUpdate={handleUpdateProfile}
-      />
+        {/* Add other profile details and functionalities here */}
+        <UpdateProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          userInfo={user}
+          onUpdate={handleUpdateProfile}
+        />
 
         {qrCodeUrl ? (
           <div className="mt-6">
@@ -211,6 +221,13 @@ const ProfilePage = () => {
               >
                 Verify OTP
               </button>
+              {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+              <button
+                onClick={() => setQrCodeUrl("")}
+                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+              >
+                Cancel
+              </button>
             </form>
           </div>
         ) : (
@@ -222,7 +239,7 @@ const ProfilePage = () => {
             Activate 2FA
           </button>
         )}
-        </div>
+      </div>
       <h3 className="text-xl font-bold my-4">Collections</h3>
       {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
       <button
@@ -232,7 +249,7 @@ const ProfilePage = () => {
         Add Collection
       </button>
       <div className="bg-white shadow-md rounded-lg p-4">
-        <table className="w-full">
+        <table className="w-full ">
           <thead>
             <tr>
               <th className="text-left py-2 px-4">Name</th>

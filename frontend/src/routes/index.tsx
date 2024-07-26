@@ -25,6 +25,8 @@ import AuctionByNft from "../pages/AuctionByNft";
 import CollectionDetail from "../pages/CollectionDetail";
 import Offers from "../pages/Offer";
 import Auction from "../pages/Auction";
+import AuctionsList from "../pages/AuctionList";
+import TransactionsList from "../pages/TransactionList";
 
 const AppRoutes: React.FC = () => {
   const { token } = useAuth();
@@ -93,7 +95,23 @@ const AppRoutes: React.FC = () => {
               <Header /> <Auction /> <Footer />
             </>
           )
-        }
+        },
+        {
+          path: "/auctions",
+          element: (
+            <>
+              <Header /> <AuctionsList /> <Footer />
+            </>
+          )
+        },
+        {
+          path: "/transaction",
+          element: (
+            <>
+              <Header /> <TransactionsList /> <Footer />
+            </>
+          )
+        },
       ],
     },
   ];

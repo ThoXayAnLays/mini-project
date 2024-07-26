@@ -3,19 +3,22 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getAuctionByNft, createAuction, sendOtp } from "../services/auction";
 import { getBidByAuction } from "../services/bid";
 import { useAuth } from "../providers/AuthProvider";
+import { toast } from "react-toastify";
 
 const AuctionByNft = () => {
   const { nftId = "" } = useParams();
   const { token } = useAuth();
   const navigate = useNavigate();
-
-  const [auction, setAuction] = useState(null);
-  const [bids, setBids] = useState([]);
+  const [isDone, setIsDone] = useState<boolean>(false);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const [auction, setAuction] = useState<any>(null);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const [bids, setBids] = useState<any[]>([]);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(60);
   const [formData, setFormData] = useState({
-    start_price: "",
+    start_price: 0,
     auction_end: "",
   });
 
@@ -25,15 +28,21 @@ const AuctionByNft = () => {
       const response = await getAuctionByNft(nftId);
       console.log("Auction response: ", response.data.data);
 
-      if (response.data.data) {
-        setAuction(response.data.data);
+      if (response.data.data.length > 0) {
+        setAuction(response.data.data[0]);
+        const bidData = await getBidByAuction(response.data.data[0].id);
+        if (bidData.data.data) {
+          setBids(bidData.data.data);
+        } else {
+          toast.error(bidData.data.message);
+        }
       } else {
         setAuction(null);
       }
     };
 
     fetchAuction();
-  }, [nftId, setAuction]);
+  }, [nftId, isDone]);
 
   const handleSendOtp = async () => {
     try {
@@ -56,15 +65,40 @@ const AuctionByNft = () => {
     }
   };
 
-  const handleCreateAuction = async (e: { preventDefault: () => void; }) => {
+  const handleCreateAuction = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const response = await createAuction(
       { action: 3, otp, data: { nft_id: nftId, ...formData } },
       token
     );
-    console.log("Create Auction response: ", response.data);
-
-    if (response.status === "SUCCESS") {
+    if (response.code === 400) {
+      toast.error(response.message);
+      setIsDone(!isDone);
+      setOtpSent(false);
+      setOtp("");
+    }
+    if (response.code === 403) {
+      toast.error(response.message);
+      setIsDone(!isDone);
+      setOtpSent(false);
+      setOtp("");
+    }
+    if (response.code === 406) {
+      toast.error(response.message);
+      setIsDone(!isDone);
+      setOtpSent(false);
+      setOtp("");
+    }
+    if (response.code === 200) {
+      toast.success("Auction updated successfully");
+      setIsDone(!isDone);
+      setAuction(response.data);
+      setOtpSent(false);
+      setOtp("");
+    }
+    if (response.code === 201) {
+      toast.success("Auction created successfully");
+      setIsDone(!isDone);
       setAuction(response.data);
       setOtpSent(false);
       setOtp("");
@@ -77,62 +111,72 @@ const AuctionByNft = () => {
       {auction ? (
         <div>
           <h2 className="text-xl font-semibold">Auction Details</h2>
-          <p>Start Price: ${auction[0].startPrice}</p>
-          <p>Auction End: {auction[0].auctionEnd}</p>
-          {auction[0].isEnded === true ? (
+          <p>Start Price: ${auction.startPrice}</p>
+          <p>Auction End: {formatDate(auction.auctionEnd)}</p>
+          {auction.isEnded ? (
             <p className="text-red-500">Auction has ended</p>
           ) : (
             <p className="text-green-500">Auction is live</p>
           )}
 
-          {auction[0].nft && (
+          {auction.nft && (
             <div className="mb-6 p-4 border rounded shadow-lg">
-              <h1 className="text-2xl font-bold mb-2">
-                {auction[0].nft.title}
-              </h1>
+              <h1 className="text-2xl font-bold mb-2">{auction.nft.title}</h1>
               <img
-                src={auction[0].nft.imageUrl}
-                alt={auction[0].nft.title}
+                src={auction.nft.imageUrl}
+                alt={auction.nft.title}
                 className="w-full h-48 object-cover mb-2"
               />
-              <p className="mb-2">Description: {auction[0].nft.description}</p>
-              <p className="mb-2">Price: ${auction[0].nft.price}</p>
-              <p className="mb-2">Sale type: {auction[0].nft.saleType}</p>
+              <p className="mb-2">Description: {auction.nft.description}</p>
+              <p className="mb-2">Price: ${auction.nft.price}</p>
+              <p className="mb-2">Sale type: {auction.nft.saleType}</p>
             </div>
           )}
           <h2 className="text-xl font-semibold mt-4">Bids</h2>
           {bids.length > 0 ? (
-            <ul>
-              {bids
-                .sort((a, b) => b.bid_amount - a.bid_amount)
-                .map((bid) => (
-                  <li key={bid.id}>
-                    <p>Bid Amount: ${bid.bid_amount}</p>
-                    <p>Bidder: {bid.bidder.username}</p>
-                  </li>
-                ))}
+            <ul className="space-y-2">
+              {bids.map((bid) => (
+                <li key={bid.id} className="bg-gray-100 p-3 rounded-lg">
+                  <p className="text-gray-700">Bid Amount: ${bid.bidAmount}</p>
+                  <p className="text-gray-700">Bidder: {bid.bidder.username}</p>
+                  <p
+                    className={`text-${
+                      bid.status === "pending"
+                        ? "blue"
+                        : bid.status === "accepted"
+                        ? "green"
+                        : "red"
+                    }-500`}
+                  >
+                    Status: {bid.status}
+                  </p>
+                </li>
+              ))}
             </ul>
           ) : (
-            <p>No bids yet.</p>
+            <p className="text-gray-500">No bids yet.</p>
           )}
         </div>
       ) : (
         <form onSubmit={handleCreateAuction}>
           <h2 className="text-xl font-semibold">Create Auction</h2>
-          <label>
-            Start Price:
+          <label className="block mb-4">
+            <span className="text-gray-700">Start Price:</span>
             <input
               type="number"
               value={formData.start_price}
               onChange={(e) =>
-                setFormData({ ...formData, start_price: e.target.value })
+                setFormData({
+                  ...formData,
+                  start_price: Number.parseInt(e.target.value, 10),
+                })
               }
               required
-              className="block mb-2 p-1"
+              className="block w-full mt-1 p-2 border rounded"
             />
           </label>
-          <label>
-            Auction End (YYYY-MM-DD):
+          <label className="block mb-4">
+            <span className="text-gray-700">Auction End (YYYY-MM-DD):</span>
             <input
               type="date"
               value={formData.auction_end}
@@ -140,32 +184,32 @@ const AuctionByNft = () => {
                 setFormData({ ...formData, auction_end: e.target.value })
               }
               required
-              className="block mb-2 p-1"
+              className="block w-full mt-1 p-2 border rounded"
             />
           </label>
-          <label>
-            OTP:
+          <label className="block mb-4">
+            <span className="text-gray-700">OTP:</span>
             <input
               type="text"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               required
-              className="block mb-2 p-1"
+              className="block w-full mt-1 p-2 border rounded"
             />
           </label>
-          {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
           <button
+            type="button"
             onClick={handleSendOtp}
-            className={`w-full p-2 text-white mb-2 ${
-              otpSent ? "bg-gray-300" : "bg-gray-500"
-            }`}
+            className={`w-full p-2 mb-4 rounded ${
+              otpSent ? "bg-gray-300" : "bg-blue-500"
+            } text-white`}
             disabled={otpSent}
           >
             {otpSent ? `Wait ${countdown}s` : "Send OTP"}
           </button>
           <button
             type="submit"
-            className="block mb-2 p-2 bg-green-500 text-white rounded"
+            className="block w-full p-2 bg-green-500 text-white rounded"
           >
             Create Auction
           </button>
@@ -173,6 +217,17 @@ const AuctionByNft = () => {
       )}
     </div>
   );
+
+  function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}/${month}/${day} : ${hours}:${minutes}:${seconds}`;
+  }
 };
 
 export default AuctionByNft;

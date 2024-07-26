@@ -4,7 +4,6 @@ import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/l
 import { v4 as uuidv4 } from 'uuid'
 import User from '#models/user'
 import Collection from '#models/collection'
-import Bid from '#models/bid'
 import Transaction from '#models/transaction'
 import Auction from '#models/auction'
 import Offer from '#models/offer'

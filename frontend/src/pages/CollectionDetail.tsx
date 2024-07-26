@@ -4,6 +4,7 @@ import { showCollection } from "../services/collection";
 import { addNft, updateNft, deleteNft } from "../services/nft";
 import { useAuth } from "../providers/AuthProvider";
 import NftModalComponent from "../components/NftModal";
+import { toast } from "react-toastify";
 
 const CollectionDetail = () => {
   const defaultAvatar = "src/assets/default_avatar.png";
@@ -50,11 +51,14 @@ const CollectionDetail = () => {
   };
 
   const handleDeleteNft = async (nftId: string) => {
-    try {
-      await deleteNft(nftId, token);
-      setNfts(nfts.filter((nft) => nft.id !== nftId));
-    } catch (error) {
-      setError("Failed to delete NFT.");
+    const confirmDelete = window.confirm("Are you sure you want to delete this NFT?");
+    if (confirmDelete) {
+      try {
+        await deleteNft(nftId, token);
+        setNfts(nfts.filter((nft) => nft.id !== nftId));
+      } catch (error) {
+        setError("Failed to delete NFT.");
+      }
     }
   };
 
@@ -112,11 +116,11 @@ const CollectionDetail = () => {
           {nfts.map(
             (nft) =>
               nft && (
-                <div key={nft.id} className="border p-4 rounded">
+                <div key={nft.id} className="border p-4 rounded bg-gray-500 text-white">
                   <img
                     src={nft?.imageUrl || defaultAvatar}
                     alt={nft.title}
-                    className="w-full h-48 object-cover mb-2"
+                    className="w-full h-full object-cover mb-2"
                   />
                   <h3 className="text-lg font-semibold">{nft.title}</h3>
                   <p>{nft.description}</p>
