@@ -25,6 +25,10 @@ const ResetPassword: React.FC = () => {
     e.preventDefault();
     try {
       const response = await resetPassword(email, password, otp);
+      if(response.status === 400) {
+        toast.error("Invalid OTP");
+        return;
+      }
       toast.success("Password reset successful");
       navigate("/login");
     } catch (error) {
