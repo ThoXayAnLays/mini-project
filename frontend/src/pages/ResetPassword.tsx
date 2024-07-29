@@ -9,7 +9,6 @@ const ResetPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [timer, setTimer] = useState(60);
 
@@ -146,10 +145,6 @@ const ResetPassword: React.FC = () => {
             Login
           </a>
         </p>
-
-        {message && (
-          <p className="mt-4 text-center text-sm text-red-600">{message}</p>
-        )}
       </div>
     </div>
   );

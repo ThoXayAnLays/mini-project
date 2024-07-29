@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { listAllAuction } from "../services/auction";
 
 const AuctionsList = () => {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [auctions, setAuctions] = useState<any>([]);
-  const [selectedAuction, setSelectedAuction] = useState(null);
+  const [selectedAuction, setSelectedAuction] = useState<any>(null);
 
   useEffect(() => {
     const fetchAuctions = async () => {
@@ -27,7 +27,7 @@ const AuctionsList = () => {
     <div className="container mx-auto">
       <h1 className="text-2xl font-bold mb-4">Auctions</h1>
       <div className="space-y-4">
-        {auctions.map((auction) => (
+        {auctions.map((auction: any) => (
           // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
           <div
             key={auction.id}
@@ -64,7 +64,7 @@ const AuctionsList = () => {
                 <h2 className="text-lg font-bold">Bids</h2>
                 {auction.bids.length > 0 ? (
                   <ul className="list-disc pl-5">
-                    {auction.bids.map((bid) => (
+                    {auction.bids.map((bid:any) => (
                       <li key={bid.id} className="bg-gray-100 p-3 rounded-lg">
                         <p className="text-gray-700">
                           Bid Amount: ${bid.bidAmount}

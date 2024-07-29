@@ -1,12 +1,5 @@
 // src/config/routes.ts
 import type React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  useNavigate,
-} from "react-router-dom";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";

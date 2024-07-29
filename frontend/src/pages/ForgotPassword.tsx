@@ -8,7 +8,6 @@ const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const [error, setError] = useState<undefined | string>(undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

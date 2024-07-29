@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { getAuctionByNft, createAuction, sendOtp } from "../services/auction";
 import { getBidByAuction } from "../services/bid";
 import { useAuth } from "../providers/AuthProvider";
@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 const AuctionByNft = () => {
   const { nftId = "" } = useParams();
   const { token } = useAuth();
-  const navigate = useNavigate();
   const [isDone, setIsDone] = useState<boolean>(false);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [auction, setAuction] = useState<any>(null);

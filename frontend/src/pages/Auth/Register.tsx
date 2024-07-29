@@ -9,7 +9,6 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [wallet_address, setWalletAddress] = useState("");
-  const [error, setError] = useState<undefined | string>(undefined);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,14 +28,13 @@ const Register: React.FC = () => {
           return toast.error("Something went wrong");
         // biome-ignore lint/style/noUselessElse: <explanation>
         } else {
-          toast.success("Please verify email first");
+          toast.error("Please verify email first");
           navigate("/verify-otp", { state: { email } });
   
           setUsername("");
           setPassword("");
           setEmail("");
           setWalletAddress("");
-          setError("");
         }
       } catch (error) {
         toast.error("Something went wrong");

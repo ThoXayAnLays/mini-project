@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { listAllTransaction } from '../services/transaction';
 
 const TransactionsList = () => {
@@ -44,7 +44,7 @@ const TransactionsList = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((transaction) => (
+            {transactions.map((transaction:any) => (
               <tr key={transaction.id}>
                 <td className="px-6 py-4 border-b border-gray-200">
                   {transaction.nft.title}
@@ -77,9 +77,6 @@ const TransactionsList = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
     return `${year}/${month}/${day}`;
   }
 };

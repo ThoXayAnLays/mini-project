@@ -17,18 +17,15 @@ import {
   deleteCollection,
   getCollectionByUser,
 } from "../services/collection";
-import { useAuth, useUser } from "../providers/AuthProvider";
+import { useAuth } from "../providers/AuthProvider";
 
 const ProfilePage = () => {
   const token = useAuth();
-  //const { user, setUser } = useUser();
   const [isDone, setIsDone] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [secret, setSecret] = useState("");
   const [otpToken, setOtpToken] = useState("");
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const [error, setError] = useState<undefined | string>(undefined);
   const defaultAvatar = "src/assets/default_avatar.png";
   const [user, setUser] = useState({
     username: "",
@@ -71,7 +68,6 @@ const ProfilePage = () => {
       setSecret(response.secret);
       setQrCodeUrl(response.qrCodeUrl);
       toast.success("2FA generated successfully");
-      setError("");
     } catch (error) {
       toast.error("Failed to activate 2FA. Please try again.");
     }
@@ -87,7 +83,6 @@ const ProfilePage = () => {
       }
       toast.success("2FA token verified successfully");
       setIsDone(!isDone);
-      setError("");
     } catch (error) {
       toast.error("Failed to verify 2FA token. Please try again.");
     }
@@ -168,7 +163,6 @@ const ProfilePage = () => {
       const updatedUser = await updateProfile(updatedUserInfo, token.token);
       setUser(updatedUser);
     } catch (err) {
-      setError("Failed to update profile");
     }
   };
 

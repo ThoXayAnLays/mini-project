@@ -3,6 +3,7 @@ import { createContext, useState, useContext, useEffect, useMemo, type ReactNode
 import axiosInstance from "../libs/axiosInstance";
 
 interface UserProfile {
+  id: string;
   username: string;
   email: string;
   bio: string;

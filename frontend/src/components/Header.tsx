@@ -1,16 +1,11 @@
 import type React from "react";
 import { useAuth, useUser } from "../providers/AuthProvider";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { useLogout } from "./Logout";
 import { me } from "../services/auth";
 import { toast } from "react-toastify";
 
-interface UserProfile {
-  username: string;
-  email: string;
-  profilePicture: string | null;
-}
 
 const Header: React.FC = () => {
   const { user, setUser } = useUser();

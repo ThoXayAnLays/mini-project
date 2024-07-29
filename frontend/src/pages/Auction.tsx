@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../providers/AuthProvider";
-import { getAuctionByNft, sendOtp as sendAuctionOtp, createAuction } from "../services/auction";
+import { getAuctionByNft } from "../services/auction";
 import { getBidByAuction, sendOtp as sendBidOtp, createBid } from "../services/bid";
 
 const Auction = () => {

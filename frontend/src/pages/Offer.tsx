@@ -18,7 +18,6 @@ const Offers: React.FC = () => {
   const [offers, setOffers] = useState<any[]>([]);
   const [newOffer, setNewOffer] = useState<number>(0);
   const [otp, setOtp] = useState<string>("");
-  const [highlightedOffer, setHighlightedOffer] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number>(60);
 

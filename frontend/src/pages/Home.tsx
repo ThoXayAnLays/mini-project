@@ -2,7 +2,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { showCollection, indexCollection } from "../services/collection";
-import { indexNft, showNft } from "../services/nft";
+import { indexNft } from "../services/nft";
 import { useNavigate } from "react-router-dom";
 
 const Home: React.FC = () => {

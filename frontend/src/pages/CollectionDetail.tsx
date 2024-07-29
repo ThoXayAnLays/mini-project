@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { showCollection } from "../services/collection";
 import { addNft, updateNft, deleteNft } from "../services/nft";
@@ -14,7 +14,6 @@ const CollectionDetail = () => {
   const [collection, setCollection] = useState<any>(null);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [nfts, setNfts] = useState<any[]>([]);
-  const [error, setError] = useState("");
   const [isNftModalOpen, setIsNftModalOpen] = useState(false);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [currentNft, setCurrentNft] = useState<any>(null);
@@ -28,7 +27,7 @@ const CollectionDetail = () => {
         setCollection(response.data.data.collection);
         setNfts(response.data.data.nfts);
       } catch (error) {
-        setError("Failed to fetch collection details.");
+        toast.error("Failed to fetch collection details.");
       }
     };
 
@@ -46,7 +45,7 @@ const CollectionDetail = () => {
       setCurrentNft(nft);
       setIsNftModalOpen(true);
     } else {
-      setError("NFT data is undefined");
+      toast.error("Failed to update NFT.");
     }
   };
 
@@ -57,7 +56,7 @@ const CollectionDetail = () => {
         await deleteNft(nftId, token);
         setNfts(nfts.filter((nft) => nft.id !== nftId));
       } catch (error) {
-        setError("Failed to delete NFT.");
+        toast.error("Failed to delete NFT.");
       }
     }
   };
@@ -73,7 +72,7 @@ const CollectionDetail = () => {
           )
         );
       } catch (error) {
-        setError("Failed to update NFT.");
+        toast.error("Failed to update NFT.");
       }
     } else {
       try {
@@ -82,7 +81,7 @@ const CollectionDetail = () => {
         
         setNfts([...nfts, response.data.data]);
       } catch (error) {
-        setError("Failed to add NFT.");
+        toast.error("Failed to add NFT.");
       }
     }
     setIsNftModalOpen(false);

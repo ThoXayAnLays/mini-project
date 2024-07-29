@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   offerByNft,
@@ -130,7 +130,7 @@ const OfferByNft = () => {
               <p style={{ color: "red" }}>Status: Rejected</p>
             )}
             <p>Date: {offer.updatedAt}</p>
-            {(offer.status === "pending" && offer.nft.ownerId === user.id) && (
+            {(offer.status === "pending" && offer.nft.ownerId === user?.id) && (
               <div className="flex justify-end">
                 {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
                 <button
