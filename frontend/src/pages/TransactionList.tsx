@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { listAllTransaction } from '../services/transaction';
 
 const TransactionsList = () => {
-  const [transactions, setTransactions] = useState([]);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const [transactions, setTransactions] = useState<any>([]);
 
   useEffect(() => {
     const fetchTransactions = async () => {

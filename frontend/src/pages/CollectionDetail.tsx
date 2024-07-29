@@ -120,7 +120,7 @@ const CollectionDetail = () => {
                   <img
                     src={nft?.imageUrl || defaultAvatar}
                     alt={nft.title}
-                    className="w-full h-full object-cover mb-2"
+                    className="w-full h-200 object-cover mb-2"
                   />
                   <h3 className="text-lg font-semibold">{nft.title}</h3>
                   <p>{nft.description}</p>
