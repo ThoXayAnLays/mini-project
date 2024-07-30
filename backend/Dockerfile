@@ -26,7 +26,7 @@ COPY --from=builder /app/build /app/build
 COPY --from=builder /app/package*.json /app/build  
 
 WORKDIR /app/build
-
+RUN node ace migration:run --force
 RUN npm install --production
 # Expose port
 EXPOSE 3333
