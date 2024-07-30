@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "migration:run": "node ace migration:run",
     "start:email-worker": "tsc config/emailWorker.ts"
   },
   "imports": {
