@@ -26,11 +26,11 @@ COPY --from=builder /app/build /app/build
 COPY --from=builder /app/package*.json /app/build  
 
 WORKDIR /app/build
-RUN node ace migration:run --force
+
 RUN npm install --production
 # Expose port
 EXPOSE 3333
 
 # Start the server
-CMD ["node", "bin/server.js"]
-# CMD ["sh", "-c", "node ace migration:run && node bin/server.js"]
+# CMD ["node", "bin/server.js"]
+CMD ["sh", "-c", "node ace migration:run --force && node bin/server.js"]
