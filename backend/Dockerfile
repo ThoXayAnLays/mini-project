@@ -12,7 +12,7 @@ RUN npm install
 # Copy source files
 COPY . .
 
-RUN node ace migration:run
+RUN npm run migration:run
 
 # Build the project
 RUN npm run build
