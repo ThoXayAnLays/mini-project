@@ -12,8 +12,6 @@ RUN npm install
 # Copy source files
 COPY . .
 
-RUN npm run migration:run
-
 # Build the project
 RUN npm run build
 
@@ -34,4 +32,5 @@ RUN npm install --production
 EXPOSE 3333
 
 # Start the server
-CMD ["node", "bin/server.js"]
+# CMD ["node", "bin/server.js"]
+CMD ["sh", "-c", "node ace migration:run && node bin/server.js"]
