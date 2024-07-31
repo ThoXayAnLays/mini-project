@@ -162,6 +162,7 @@ const ProfilePage = () => {
     try {
       const updatedUser = await updateProfile(updatedUserInfo, token.token);
       setUser(updatedUser);
+      setIsDone(!isDone);
     } catch (err) {
     }
   };
@@ -175,6 +176,7 @@ const ProfilePage = () => {
             src={user?.profilePicture || defaultAvatar}
             alt="Profile"
             className="w-20 h-20 rounded-full"
+            loading="lazy"
           />
           <div className="ml-4">
             <h1 className="text-2xl font-bold">{user?.username}</h1>

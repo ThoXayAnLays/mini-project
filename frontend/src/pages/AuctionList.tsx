@@ -4,6 +4,7 @@ import { listAllAuction } from "../services/auction";
 const AuctionsList = () => {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [auctions, setAuctions] = useState<any>([]);
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [selectedAuction, setSelectedAuction] = useState<any>(null);
 
   useEffect(() => {
@@ -27,7 +28,8 @@ const AuctionsList = () => {
     <div className="container mx-auto">
       <h1 className="text-2xl font-bold mb-4">Auctions</h1>
       <div className="space-y-4">
-        {auctions.map((auction: any) => (
+        {/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
+{auctions.map((auction: any) => (
           // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
           <div
             key={auction.id}
@@ -38,7 +40,8 @@ const AuctionsList = () => {
               <img
                 src={auction.nft.imageUrl}
                 alt={auction.nft.title}
-                className="w-64 h-64 object-cover mb-4 md:mb-0"
+                className="w-full h-48 object-cover mb-4 md:mb-0"
+                loading="lazy"
               />
               <div className="ml-0 md:ml-4">
                 <h2 className="text-xl font-semibold">{auction.nft.title}</h2>
@@ -64,7 +67,8 @@ const AuctionsList = () => {
                 <h2 className="text-lg font-bold">Bids</h2>
                 {auction.bids.length > 0 ? (
                   <ul className="list-disc pl-5">
-                    {auction.bids.map((bid:any) => (
+                    {/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
+{auction.bids.map((bid:any) => (
                       <li key={bid.id} className="bg-gray-100 p-3 rounded-lg">
                         <p className="text-gray-700">
                           Bid Amount: ${bid.bidAmount}

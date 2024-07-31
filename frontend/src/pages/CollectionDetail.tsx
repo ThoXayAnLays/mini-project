@@ -50,7 +50,9 @@ const CollectionDetail = () => {
   };
 
   const handleDeleteNft = async (nftId: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this NFT?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this NFT?"
+    );
     if (confirmDelete) {
       try {
         await deleteNft(nftId, token);
@@ -78,7 +80,7 @@ const CollectionDetail = () => {
       try {
         const response = await addNft(data, token);
         console.log("nftrespone:::", response.data.data);
-        
+
         setNfts([...nfts, response.data.data]);
       } catch (error) {
         toast.error("Failed to add NFT.");
@@ -115,11 +117,15 @@ const CollectionDetail = () => {
           {nfts.map(
             (nft) =>
               nft && (
-                <div key={nft.id} className="border p-4 rounded bg-gray-500 text-white">
+                <div
+                  key={nft.id}
+                  className="border p-4 rounded bg-gray-500 text-white"
+                >
                   <img
                     src={nft?.imageUrl || defaultAvatar}
                     alt={nft.title}
-                    className="w-full h-200 object-cover mb-2"
+                    className="w-full h-48 object-cover mb-2"
+                    loading="lazy"
                   />
                   <h3 className="text-lg font-semibold">{nft.title}</h3>
                   <p>{nft.description}</p>

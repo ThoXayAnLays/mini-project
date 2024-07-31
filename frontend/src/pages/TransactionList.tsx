@@ -44,7 +44,8 @@ const TransactionsList = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((transaction:any) => (
+            {/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
+{transactions.map((transaction:any) => (
               <tr key={transaction.id}>
                 <td className="px-6 py-4 border-b border-gray-200">
                   {transaction.nft.title}

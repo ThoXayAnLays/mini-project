@@ -100,7 +100,8 @@ const Offers: React.FC = () => {
           <img
             src={nft.imageUrl}
             alt={nft.title}
-            className="w-200 h-200 object-cover mb-2"
+            className="w-full h-48 object-cover mb-2"
+            loading="lazy"
           />
           <p className="mb-2">Description: {nft.description}</p>
           <p className="mb-2">Price: ${nft.price}</p>

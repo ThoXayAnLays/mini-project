@@ -108,7 +108,8 @@ const OfferByNft = () => {
       <img
         src={nft.imageUrl}
         alt={nft.title}
-        className="w-200 h-200 object-cover mb-4"
+        className="w-full h-48 object-cover mb-4"
+        loading="lazy"
       />
       <p>{nft.description}</p>
       <p>Price: ${nft.price}</p>
