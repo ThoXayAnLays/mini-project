@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 const NFTByOwner = () => {
   const defaultAvatar = "src/assets/default_avatar.png";
   const { token } = useAuth();
-  const { user } = useUser();
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [nfts, setNfts] = useState<any[]>([]);
   const navigate = useNavigate();
