@@ -106,8 +106,9 @@ const Auction = () => {
           <img
             src={auction.nft.imageUrl}
             alt={auction.nft.title}
-            className="w-full h-48 object-cover mb-4"
+            className="w-auto h-auto object-cover mb-2"
             loading="lazy"
+            style={{ maxHeight: "300px", maxWidth: "300px" }}
           />
           <p className="text-gray-600 mb-2">Owner: {auction.nft.owner.username}</p>
           <p className="text-gray-600 mb-2">Start Price: {auction.startPrice}</p>
