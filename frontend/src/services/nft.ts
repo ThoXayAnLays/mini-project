@@ -79,3 +79,18 @@ export const showNft = async (id: string) => {
         return { status: 'ERROR', message: 'Failed to fetch NFT.' };
     }
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export const showNftByOwner = async (token: any) => {
+    try{
+        // biome-ignore lint/style/noUnusedTemplateLiteral: <explanation>
+        const response = await axiosInstance.get(`/nft/getByOwner`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return { status: 'SUCCESS', message: 'Get NFT by owner successfully.', data: response.data }
+    }catch{
+        return { status: 'ERROR', message: 'Failed to fetch NFT by owner.' };
+    }
+}

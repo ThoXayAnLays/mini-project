@@ -10,10 +10,10 @@ services:
   #     - .env
   #   volumes:
   #     - .:/app
+  #   ports:
+  #     - "3333:3333"
   #   depends_on:
   #     - postgresql
-  #     - redis
-  #   external_links:
   #     - redis
   #   command: sh -c "node ace migration:run && node bin/server.js"
   #   networks:
@@ -22,12 +22,14 @@ services:
   redis:
     image: redis:latest 
     container_name: redis
+    expose:
+      - 6379
     ports:
       - 6379:6379
     restart: always
     networks:
       - backend
-    command: redis-server --bind 0.0.0.0 --appendonly yes
+    # command: redis-server --bind 0.0.0.0 --appendonly yes
 
   postgresql:
     image: postgres:16.1

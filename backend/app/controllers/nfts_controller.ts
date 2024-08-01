@@ -70,6 +70,12 @@ export default class NftsController {
     return response.ok(nfts)
   }
 
+  public async showByOwner({ response, auth}: HttpContext){
+    const user = await auth.authenticate();
+    const nfts = await NFT.query().where('owner_id', user.id).preload('creator').preload('owner').preload('collection')
+    return response.ok(nfts)
+  }
+
   public async show({ params, response }: HttpContext) {
     const nft = await NFT.findOrFail(params.id)
     await nft.load('creator')

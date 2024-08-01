@@ -74,7 +74,7 @@ router
           .use(middleware.pagination())
           .use(middleware.auth({ guards: ['api'] }))
         router.get('/:id', [CollectionsController, 'show'])
-        
+
         router
           .post('/', [CollectionsController, 'create'])
           .use(middleware.auth({ guards: ['api'] }))
@@ -90,6 +90,9 @@ router
     router
       .group(() => {
         router.get('/', [NftsController, 'index']).use(middleware.pagination())
+        router
+          .get('/getByOwner', [NftsController, 'showByOwner'])
+          .use(middleware.auth({ guards: ['api'] }))
         router.get('/:id', [NftsController, 'show'])
         router.post('/', [NftsController, 'create']).use(middleware.auth({ guards: ['api'] }))
         router.put('/:id', [NftsController, 'update']).use(middleware.auth({ guards: ['api'] }))
@@ -116,7 +119,9 @@ router
     router
       .group(() => {
         router.get('/', [AuctionsController, 'list']).use(middleware.pagination())
-        router.get('/auction-by-id/:id', [AuctionsController, 'showItemOnList']).use(middleware.pagination())
+        router
+          .get('/auction-by-id/:id', [AuctionsController, 'showItemOnList'])
+          .use(middleware.pagination())
         router.get('/all-auction', [AuctionsController, 'index']).use(middleware.pagination())
         router.get('/auction-by-nft/:id', [AuctionsController, 'show']).use(middleware.pagination())
         router
@@ -147,9 +152,11 @@ router
           .use(middleware.auth({ guards: ['api'] }))
       })
       .prefix('/bid')
-  
-    router.group(() => {
-      router.get('/', [TransactionsController, 'index']).use(middleware.pagination())
-    }).prefix('/transaction')
+
+    router
+      .group(() => {
+        router.get('/', [TransactionsController, 'index']).use(middleware.pagination())
+      })
+      .prefix('/transaction')
   })
   .prefix('/api/v1')

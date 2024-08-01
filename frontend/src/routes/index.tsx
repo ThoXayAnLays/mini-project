@@ -20,6 +20,7 @@ import Offers from "../pages/Offer";
 import Auction from "../pages/Auction";
 import AuctionsList from "../pages/AuctionList";
 import TransactionsList from "../pages/TransactionList";
+import NFTByOwner from "../pages/NFTByOwner";
 
 const AppRoutes: React.FC = () => {
   const { token } = useAuth();
@@ -102,6 +103,14 @@ const AppRoutes: React.FC = () => {
           element: (
             <>
               <Header /> <TransactionsList /> <Footer />
+            </>
+          )
+        },
+        {
+          path: "/nft-by-owner",
+          element: (
+            <>
+              <Header /> <NFTByOwner /> <Footer />
             </>
           )
         },

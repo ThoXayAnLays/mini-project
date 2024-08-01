@@ -49,6 +49,9 @@ const Header: React.FC = () => {
             <Link to="/transaction" className="text-xl font-semibold text-gray-700">
               Transaction
             </Link>
+            <Link to="/nft-by-owner" className="text-xl font-semibold text-gray-700">
+              Owned NFT
+            </Link>
           </div>
           <div className="flex items-center space-x-4">
             {token ? (

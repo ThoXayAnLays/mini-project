@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { showCollection } from "../services/collection";
 import { addNft, updateNft, deleteNft } from "../services/nft";
-import { useAuth } from "../providers/AuthProvider";
+import { useAuth, useUser } from "../providers/AuthProvider";
 import NftModalComponent from "../components/NftModal";
 import { toast } from "react-toastify";
 
@@ -10,6 +10,7 @@ const CollectionDetail = () => {
   const defaultAvatar = "src/assets/default_avatar.png";
   const { collectionId = "" } = useParams<{ collectionId: string }>();
   const { token } = useAuth();
+  const { user } = useUser();
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   const [collection, setCollection] = useState<any>(null);
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -132,38 +133,40 @@ const CollectionDetail = () => {
                   <p>Price: ${nft.price}</p>
                   <p>Owner: {nft.owner.username}</p>
                   <p>Sale type: {nft.saleType}</p>
-                  <div className="flex justify-between">
-                    {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-                    <button
-                      onClick={() => handleUpdateNft(nft)}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded"
-                    >
-                      Update
-                    </button>
-                    {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-                    <button
-                      onClick={() => handleDeleteNft(nft.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                  {nft.saleType === "offer" ? (
-                    // biome-ignore lint/a11y/useButtonType: <explanation>
-                    <button
-                      onClick={() => handleShowOffer(nft.id)}
-                      className="bg-green-500 text-white px-2 py-1 rounded"
-                    >
-                      Show Offer
-                    </button>
-                  ) : (
-                    // biome-ignore lint/a11y/useButtonType: <explanation>
-                    <button
-                      onClick={() => handleShowAuction(nft.id)}
-                      className="bg-indigo-500 text-white px-2 py-1 rounded"
-                    >
-                      Show Auction
-                    </button>
+                  {nft.ownerId === user?.id && (
+                    <div className="flex justify-between">
+                      {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+                      <button
+                        onClick={() => handleUpdateNft(nft)}
+                        className="bg-yellow-500 text-white px-2 py-1 rounded"
+                      >
+                        Update
+                      </button>
+                      {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+                      <button
+                        onClick={() => handleDeleteNft(nft.id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                      {nft.saleType === "offer" ? (
+                        // biome-ignore lint/a11y/useButtonType: <explanation>
+                        <button
+                          onClick={() => handleShowOffer(nft.id)}
+                          className="bg-green-500 text-white px-2 py-1 rounded"
+                        >
+                          Show Offer
+                        </button>
+                      ) : (
+                        // biome-ignore lint/a11y/useButtonType: <explanation>
+                        <button
+                          onClick={() => handleShowAuction(nft.id)}
+                          className="bg-indigo-500 text-white px-2 py-1 rounded"
+                        >
+                          Show Auction
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )
