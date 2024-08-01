@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { showNftByOwner } from "../services/nft";
-import { useAuth, useUser } from "../providers/AuthProvider";
+import { useAuth } from "../providers/AuthProvider";
 import { toast } from "react-toastify";
 
 const NFTByOwner = () => {
