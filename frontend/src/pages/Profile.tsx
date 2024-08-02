@@ -65,9 +65,14 @@ const ProfilePage = () => {
   const generateSecret = async () => {
     try {
       const response = await generateTwoFactorAuth(token.token);
+      if(!response.secret || !response.qrCodeUrl) {
+        toast.error("Failed to generate 2FA. Please try again.");
+        return;
+      }
       setSecret(response.secret);
       setQrCodeUrl(response.qrCodeUrl);
       toast.success("2FA generated successfully");
+      setIsDone(!isDone);
     } catch (error) {
       toast.error("Failed to activate 2FA. Please try again.");
     }
