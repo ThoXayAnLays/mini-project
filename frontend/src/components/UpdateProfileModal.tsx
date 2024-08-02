@@ -93,6 +93,14 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({
         </div>
         <div className="mb-4">
           <label className="block text-gray-700">Profile Picture</label>
+          {updatedUserInfo.profilePicture && (
+            <img
+              src={updatedUserInfo.profilePicture}
+              alt="Profile"
+              className="object-cover mb-2"
+              style={{height:"25px", width: "25px"}}
+            />
+          )}
           <input type="file" onChange={handleFileChange} className="w-full" />
         </div>
         <div className="flex justify-end">

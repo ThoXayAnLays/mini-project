@@ -100,7 +100,6 @@ const Home: React.FC = () => {
                   alt={nft.title}
                   className="w-full h-48 object-cover mb-2"
                   loading="lazy"
-                  style={{ maxHeight: "300px", maxWidth: "300px" }}
                 />
                 <h3 className="text-lg font-semibold">{nft.title}</h3>
                 <p>{nft.description}</p>

@@ -99,7 +99,7 @@ const NftModalComponent: React.FC<NftModalProps> = ({
         <div className="mb-4">
           <label className="block text-gray-700">Image</label>
           {nftData?.imageUrl && (
-            <img src={nftData?.imageUrl} alt="NFT" className="w-25 h-25 object-cover mb-2" />
+            <img src={nftData?.imageUrl} alt="NFT" className="object-cover mb-2"  style={{height:"25px", width: "25px"}}/>
           )}
           <input
             type="file"
