@@ -53,13 +53,13 @@ const Offers: React.FC = () => {
         toast.error("Invalid or expired OTP");
       }
       if (response.code === 201) {
-        setIsDone(true);
+        setIsDone(!isDone);
         setOtp("");
         setNewOffer(0);
         toast.success("Offer created successfully");
       }
       if (response.code === 200) {
-        setIsDone(true);
+        setIsDone(!isDone);
         setOtp("");
         setNewOffer(0);
         toast.success("Offer updated successfully");
