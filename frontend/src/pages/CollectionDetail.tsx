@@ -5,6 +5,8 @@ import { addNft, updateNft, deleteNft } from "../services/nft";
 import { useAuth, useUser } from "../providers/AuthProvider";
 import NftModalComponent from "../components/NftModal";
 import { toast } from "react-toastify";
+import { offerByNft } from "../services/offer";
+import { getAuctionByNft } from "../services/auction";
 
 const CollectionDetail = () => {
   const defaultAvatar = "src/assets/default_avatar.png";
@@ -56,6 +58,12 @@ const CollectionDetail = () => {
     );
     if (confirmDelete) {
       try {
+        const checkOffer = await offerByNft(nftId);
+        const checkAution = await getAuctionByNft(nftId);
+        if(checkAution || checkOffer){
+          toast.error("Can't delete NFT, it's in auction or offer");
+          return;
+        }
         await deleteNft(nftId, token);
         setNfts(nfts.filter((nft) => nft.id !== nftId));
       } catch (error) {
