@@ -9,6 +9,9 @@ export default class NftsController {
   async uploadNftImage(file: any) {
     const result = await cloudinary.uploader.upload(file.tmpPath, {
       folder: "nfts",
+      crop: "fill",
+      width: 500,
+      height: 500
     });
     return result.secure_url;
   }
