@@ -83,8 +83,15 @@ const Auction = () => {
         },
       };
       const response = await createBid(bidData, token);
-      if (response.code === 201 || response.code === 200) {
+      if (response.code === 201) {
         toast.success("Bid placed successfully.");
+        setBids([...bids, response.data]);
+        setOtp("");
+        setBidAmount(0);
+        setIsDone(!isDone);
+      }
+      else if(response.code === 200){
+        toast.success("Bid updated successfully.");
         setBids([...bids, response.data]);
         setOtp("");
         setBidAmount(0);
