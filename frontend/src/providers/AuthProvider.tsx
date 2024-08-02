@@ -45,55 +45,55 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [token, setToken_] = useState<string | null>(localStorage.getItem("token"));
 
-  const setToken = (newToken: string | null) => {
-    if (newToken) {
-      const expirationTime = new Date().getTime() + 2 * 60 * 60 * 1000; // 1 day in milliseconds
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("tokenExpiration", expirationTime.toString());
-      // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
-    } else {
-      localStorage.removeItem("token");
-      localStorage.removeItem("tokenExpiration");
-      // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-      // biome-ignore lint/performance/noDelete: <explanation>
-      delete axiosInstance.defaults.headers.common["Authorization"];
-    }
-    setToken_(newToken);
-  };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    const checkTokenExpiration = () => {
-      const expirationTime = localStorage.getItem("tokenExpiration");
-      if (expirationTime && new Date().getTime() > Number(expirationTime)) {
-        setToken(null);
-      }
-    };
-
-    checkTokenExpiration();
-
-    const interval = setInterval(checkTokenExpiration, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, []);
-
   // const setToken = (newToken: string | null) => {
+  //   if (newToken) {
+  //     const expirationTime = new Date().getTime() + 2 * 60 * 60 * 1000; // 1 day in milliseconds
+  //     localStorage.setItem("token", newToken);
+  //     localStorage.setItem("tokenExpiration", expirationTime.toString());
+  //     // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+  //     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+  //   } else {
+  //     localStorage.removeItem("token");
+  //     localStorage.removeItem("tokenExpiration");
+  //     // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+  //     // biome-ignore lint/performance/noDelete: <explanation>
+  //     delete axiosInstance.defaults.headers.common["Authorization"];
+  //   }
   //   setToken_(newToken);
   // };
 
+  // // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   // useEffect(() => {
-  //   if (token) {
-  //     // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-  //     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  //     localStorage.setItem("token", token);
-  //   } else {
-  //     // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-  //     // biome-ignore lint/performance/noDelete: <explanation>
-  //           delete axiosInstance.defaults.headers.common["Authorization"];
-  //     localStorage.removeItem("token");
-  //   }
-  // }, [token]);
+  //   const checkTokenExpiration = () => {
+  //     const expirationTime = localStorage.getItem("tokenExpiration");
+  //     if (expirationTime && new Date().getTime() > Number(expirationTime)) {
+  //       setToken(null);
+  //     }
+  //   };
+
+  //   checkTokenExpiration();
+
+  //   const interval = setInterval(checkTokenExpiration, 60000); // Check every minute
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  const setToken = (newToken: string | null) => {
+    setToken_(newToken);
+  };
+
+  useEffect(() => {
+    if (token) {
+      // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      localStorage.setItem("token", token);
+    } else {
+      // biome-ignore lint/complexity/useLiteralKeys: <explanation>
+      // biome-ignore lint/performance/noDelete: <explanation>
+      delete axiosInstance.defaults.headers.common["Authorization"];
+      localStorage.removeItem("token");
+    }
+  }, [token]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const authContextValue = useMemo(() => ({ token, setToken }), [token]);
