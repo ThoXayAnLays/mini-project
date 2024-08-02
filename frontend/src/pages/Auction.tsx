@@ -121,13 +121,13 @@ const Auction = () => {
           <h2 className="text-lg font-bold mb-2">Bids</h2>
           {bids.length > 0 ? (
             <ul className="space-y-2">
-              {bids.map((bid) => (
-                <li key={bid.id} className="bg-gray-100 p-3 rounded-lg">
-                  <p className="text-gray-700">Bid Amount: ${bid.bidAmount}</p>
-                  <p className="text-gray-700">Bidder: {bid.bidder.username}</p>
-                  {bid.status === 'pending' && (<p className="text-blue-500">Status: {bid.status}</p>)}
-                  {bid.status === 'accepted' && (<p className="text-green-500">Status: {bid.status}</p>)}
-                  {bid.status === 'rejected' && (<p className="text-red-500">Status: {bid.status}</p>)}
+              {bids?.map((bid) => (
+                <li key={bid?.id} className="bg-gray-100 p-3 rounded-lg">
+                  <p className="text-gray-700">Bid Amount: ${bid?.bidAmount}</p>
+                  <p className="text-gray-700">Bidder: {bid.bidder?.username}</p>
+                  {bid.status === 'pending' && (<p className="text-blue-500">Status: {bid?.status}</p>)}
+                  {bid.status === 'accepted' && (<p className="text-green-500">Status: {bid?.status}</p>)}
+                  {bid.status === 'rejected' && (<p className="text-red-500">Status: {bid?.status}</p>)}
                 </li>
               ))}
             </ul>
